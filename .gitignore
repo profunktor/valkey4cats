@@ -1,0 +1,23 @@
+*.class
+*.log
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+.bsp
+
+#SBT
+target
+project/target
+
+.DS_Store
+.vscode
+.metals
+.bloop
+metals.sbt
+.claude/
+*.bak

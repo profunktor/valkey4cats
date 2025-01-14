@@ -1,0 +1,35 @@
+services:
+  SingleNode:
+    restart: always
+    image: valkey/valkey:8.0.2
+    ports:
+      - "6379:6379"
+    environment:
+      - DEBUG=false
+    command: valkey-server --notify-keyspace-events KEA
+
+  ReplicaNode:
+    restart: always
+    image: valkey/valkey:8.0.2
+    ports:
+      - "6380:6379"
+    command: valkey-server --replicaof SingleNode 6379
+    links:
+      - SingleNode:SingleNode
+    environment:
+      - DEBUG=false
+
+  ValkeyCluster:
+    restart: always
+    image: yisraelu/valkey-cluster:8.0.7
+    ports:
+      - "30001:30001"
+      - "30002:30002"
+      - "30003:30003"
+      - "30004:30004"
+      - "30005:30005"
+      - "30006:30006"
+    environment:
+      - IP=0.0.0.0
+      - INITIAL_PORT=30001
+      - DEBUG=false
