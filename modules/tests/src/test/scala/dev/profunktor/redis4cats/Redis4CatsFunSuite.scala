@@ -20,13 +20,15 @@ import cats.effect._
 import cats.syntax.all._
 import dev.profunktor.redis4cats.Redis4CatsFunSuite.{ Fs2PubSub, Fs2Streaming }
 import dev.profunktor.redis4cats.connection._
-import dev.profunktor.redis4cats.data.RedisCodec
+import dev.profunktor.redis4cats.data.{ RedisChannel, RedisCodec }
 import dev.profunktor.redis4cats.effect.Log.NoOp._
+import dev.profunktor.redis4cats.pubsub.data.Subscription
 import dev.profunktor.redis4cats.pubsub.{ PubSub, PubSubCommands }
 import dev.profunktor.redis4cats.streams.{ RedisStream, Streaming }
 import io.lettuce.core.{ ClientOptions, TimeoutOptions }
+import munit.{ Compare, Location }
 
-import scala.concurrent.duration.{ Duration, DurationInt }
+import scala.concurrent.duration.{ Duration, DurationInt, FiniteDuration }
 import scala.concurrent.{ Await, Future }
 
 abstract class Redis4CatsFunSuite(isCluster: Boolean) extends IOSuite {
@@ -114,6 +116,53 @@ abstract class Redis4CatsFunSuite(isCluster: Boolean) extends IOSuite {
   def withRedisCluster[A](f: RedisCommands[IO, String, String] => IO[A]): Future[Unit] =
     withAbstractRedisCluster[A, String, String](f)(stringCodec)
 
+  implicit class PubSubExts(pubSub: Fs2PubSub[String, String]) {
+
+    /** Assert that a given channel has the given number of subscriptions.
+      *
+      * @param waitFor max time to wait for the expected number of subscriptions to be present
+      * */
+    def shouldHaveNSubs(
+        channel: RedisChannel[String],
+        count: Long,
+        waitFor: FiniteDuration = 0.nanos
+    )(implicit loc: Location): IO[Unit] =
+      waitUntilEquals(
+        pubSub.pubSubSubscriptions(List(channel)),
+        List(Subscription(channel, count)),
+        waitFor
+      )
+  }
+
+  case class FiberWithStatus[A](fiber: FiberIO[A], status: Ref[IO, Option[Either[Unit, OutcomeIO[A]]]]) {
+    def isRunning: IO[Boolean] = status.get.map(_.contains(Left(())))
+
+    def waitUntilRunning(timeout: FiniteDuration = 250.millis): IO[Unit] =
+      waitUntilEquals(isRunning, true, timeout, s"fiber $fiber should have started by now")
+  }
+  implicit class IOExts[A](io: IO[A]) {
+    def startWithStatus: IO[FiberWithStatus[A]] =
+      for {
+        status <- Ref[IO].of(Option.empty[Either[Unit, OutcomeIO[A]]])
+        fiber <- (status.set(Some(Left(()))) *> io.guaranteeCase(outcome => status.set(Some(Right(outcome))))).start
+      } yield FiberWithStatus(fiber, status)
+
+    def startAndWaitUntilRunning(timeout: FiniteDuration = 250.millis): IO[FiberIO[A]] =
+      io.startWithStatus.flatTap(_.waitUntilRunning(timeout)).map(_.fiber)
+  }
+
+  /** Waits at most `waitFor` until the `io` starts returning `expected`, failing the assertion otherwise. */
+  def waitUntilEquals[A, B](
+      io: IO[A],
+      expected: B,
+      waitFor: FiniteDuration,
+      clue: => Any = "values are not the same"
+  )(implicit loc: Location, compare: Compare[A, B]): IO[Unit] = {
+    val checker = false.iterateUntilM(_ =>
+      io.map(compare.isEqual(_, expected)).flatTap(if (_) IO.unit else IO.sleep(50.millis))
+    )(identity)
+    checker.void.timeoutTo(waitFor, io.map(assertEquals(_, expected, clue)))
+  }
 }
 object Redis4CatsFunSuite {
   type Fs2PubSub[K, V] = PubSubCommands[IO, fs2.Stream[IO, *], K, V]
