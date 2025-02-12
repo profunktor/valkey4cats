@@ -2,7 +2,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 
 addSbtPlugin("com.typesafe"              % "sbt-mima-plugin" % "1.1.4")
 addSbtPlugin("com.github.sbt"            % "sbt-ci-release"  % "1.9.2")
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"    % "0.5.2")
+addSbtPlugin("org.typelevel"             % "sbt-tpolecat"    % "0.5.2")
 addSbtPlugin("de.heikoseeberger"         % "sbt-header"      % "5.10.0")
 addSbtPlugin("org.scalameta"             % "sbt-scalafmt"    % "2.5.2")
 addSbtPlugin("com.47deg"                 % "sbt-microsites"  % "1.4.4")
