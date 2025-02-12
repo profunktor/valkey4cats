@@ -544,6 +544,9 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
   override def pttl(key: K): F[Option[FiniteDuration]] =
     async.flatMap(_.pttl(key).futureLift.map(toFiniteDuration(TimeUnit.MILLISECONDS)))
 
+  override def randomKey: F[Option[K]] =
+    async.flatMap(_.randomkey().futureLift.map(Option(_)))
+
   override def restore(key: K, value: Array[Byte]): F[Unit] =
     async.flatMap(_.restore(key, 0, value).futureLift.void)
 
@@ -568,8 +571,20 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
   override def scan(previous: KeyScanCursor[K], scanArgs: ScanArgs): F[KeyScanCursor[K]] =
     async.flatMap(_.scan(previous.underlying, scanArgs.underlying).futureLift.map(KeyScanCursor[K]))
 
+  override def scan(keyScanArgs: KeyScanArgs): F[KeyScanCursor[K]] =
+    async.flatMap(_.scan(keyScanArgs.underlying).futureLift.map(KeyScanCursor[K]))
+
+  override def scan(cursor: KeyScanCursor[K], keyScanArgs: KeyScanArgs): F[KeyScanCursor[K]] =
+    async.flatMap(_.scan(cursor.underlying, keyScanArgs.underlying).futureLift.map(KeyScanCursor[K]))
+
   override def ttl(key: K): F[Option[FiniteDuration]] =
     async.flatMap(_.ttl(key).futureLift.map(toFiniteDuration(TimeUnit.SECONDS)))
+
+  override def typeOf(key: K): F[Option[RedisType]] =
+    async.flatMap(_.`type`(key).futureLift.map(RedisType.fromString))
+
+  override def unlink(key: K*): F[Long] =
+    async.flatMap(_.unlink(key: _*).futureLift.map(x => Long.box(x)))
 
   /******************************* Transactions API **********************************/
   // When in a cluster, transactions should run against a single node.

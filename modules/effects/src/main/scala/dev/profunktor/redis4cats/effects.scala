@@ -18,7 +18,12 @@ package dev.profunktor.redis4cats
 
 import java.time.Instant
 
-import io.lettuce.core.{ GeoArgs, ScriptOutputType => JScriptOutputType, ScanArgs => JScanArgs }
+import io.lettuce.core.{
+  GeoArgs,
+  ScriptOutputType => JScriptOutputType,
+  ScanArgs => JScanArgs,
+  KeyScanArgs => JKeyScanArgs
+}
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -123,6 +128,27 @@ object effects {
     def apply(`match`: String, count: Long): ScanArgs = ScanArgs(Some(`match`), Some(count))
   }
 
+  sealed abstract class KeyScanArgs(tpe: Option[RedisType], pattern: Option[String], count: Option[Long]) {
+    def underlying: JKeyScanArgs = {
+      val u = new JKeyScanArgs
+      pattern.foreach(u.`match`)
+      count.foreach(u.limit)
+      tpe.foreach(t => u.`type`(t.asString))
+      u
+    }
+  }
+
+  object KeyScanArgs {
+    def apply(pattern: String): KeyScanArgs                 = new KeyScanArgs(None, Some(pattern), None) {}
+    def apply(tpe: RedisType): KeyScanArgs                  = new KeyScanArgs(Some(tpe), None, None) {}
+    def apply(tpe: RedisType, pattern: String): KeyScanArgs = new KeyScanArgs(Some(tpe), Some(pattern), None) {}
+    def apply(count: Long): KeyScanArgs                     = new KeyScanArgs(None, None, Some(count)) {}
+    def apply(pattern: String, count: Long): KeyScanArgs    = new KeyScanArgs(None, Some(pattern), Some(count)) {}
+    def apply(tpe: RedisType, count: Long): KeyScanArgs     = new KeyScanArgs(Some(tpe), None, Some(count)) {}
+    def apply(tpe: RedisType, pattern: String, count: Long): KeyScanArgs =
+      new KeyScanArgs(Some(tpe), Some(pattern), Some(count)) {}
+  }
+
   sealed trait FlushMode {
     def asJava: io.lettuce.core.FlushMode =
       this match {
@@ -208,4 +234,26 @@ object effects {
     /** Set expiry only when the new expiry is greater than current one */
     case object Lt extends ExpireExistenceArg
   }
+
+  // Models the core Redis Types as described in https://redis.io/docs/latest/develop/data-types/
+  // Caveat: BitSet, GeoSpatial etc... are implemented in terms of the core types , i.e. Geo is a Sorted Set etc..
+  sealed abstract class RedisType(val asString: String)
+  object RedisType {
+    val all = scala.List(String, List, Set, SortedSet, Hash, Stream)
+
+    def fromString(s: String): Option[RedisType] = all.find(_.asString == s)
+
+    case object String extends RedisType("string")
+
+    case object List extends RedisType("list")
+
+    case object Set extends RedisType("set")
+
+    case object SortedSet extends RedisType("zset")
+
+    case object Hash extends RedisType("hash")
+
+    case object Stream extends RedisType("stream")
+  }
+
 }

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package dev.profunktor.redis4cats.pubsub
+package dev.profunktor.redis4cats
 
-import cats.effect.kernel.Resource
-import dev.profunktor.redis4cats.data.RedisChannel
-import fs2.concurrent.Topic
-import dev.profunktor.redis4cats.data.RedisPattern
-import dev.profunktor.redis4cats.data.RedisPatternEvent
+import cats.{ Applicative }
+import cats.effect.kernel.Clock
+import fs2.Stream
 
-package object internals {
-  private[pubsub] type GetOrCreateTopicListener[F[_], K, V] =
-    RedisChannel[K] => PubSubState[F, K, V] => Resource[F, Topic[F, Option[V]]]
+import scala.concurrent.duration.FiniteDuration
 
-  private[pubsub] type GetOrCreatePatternListener[F[_], K, V] =
-    RedisPattern[K] => PubSubState[F, K, V] => Resource[F, Topic[F, Option[RedisPatternEvent[K, V]]]]
+object StreamsInstances {
+  implicit def fs2Clock[F[_]: Clock]: Clock[Stream[F, *]] = new Clock[Stream[F, *]] {
+    override def applicative: Applicative[Stream[F, *]] = Applicative[Stream[F, *]]
+    override def monotonic: Stream[F, FiniteDuration]   = Stream.eval(Clock[F].monotonic)
+    override def realTime: Stream[F, FiniteDuration]    = Stream.eval(Clock[F].realTime)
+  }
 }

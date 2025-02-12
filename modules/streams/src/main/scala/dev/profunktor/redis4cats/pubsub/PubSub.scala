@@ -23,9 +23,8 @@ import cats.syntax.all._
 import dev.profunktor.redis4cats.connection.RedisClient
 import dev.profunktor.redis4cats.data._
 import dev.profunktor.redis4cats.effect._
-import dev.profunktor.redis4cats.pubsub.internals.{ LivePubSubCommands, Publisher, Subscriber }
+import dev.profunktor.redis4cats.pubsub.internals.{ LivePubSubCommands, PubSubState, Publisher, Subscriber }
 import fs2.Stream
-import dev.profunktor.redis4cats.pubsub.internals.PubSubState
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 
 object PubSub {
@@ -54,11 +53,11 @@ object PubSub {
   def mkPubSubConnection[F[_]: Async: FutureLift: Log, K, V](
       client: RedisClient,
       codec: RedisCodec[K, V]
-  ): Resource[F, PubSubCommands[Stream[F, *], K, V]] = {
+  ): Resource[F, PubSubCommands[F, Stream[F, *], K, V]] = {
     val (acquire, release) = acquireAndRelease[F, K, V](client, codec)
     // One exclusive connection for subscriptions and another connection for publishing / stats
     for {
-      state <- Resource.eval(Ref.of[F, PubSubState[F, K, V]](PubSubState(Map.empty, Map.empty)))
+      state <- Resource.eval(PubSubState.make[F, K, V])
       sConn <- Resource.make(acquire)(release)
       pConn <- Resource.make(acquire)(release)
     } yield new LivePubSubCommands[F, K, V](state, sConn, pConn)
@@ -72,7 +71,7 @@ object PubSub {
   def mkPublisherConnection[F[_]: FlatMap: FutureLift: Log, K, V](
       client: RedisClient,
       codec: RedisCodec[K, V]
-  ): Resource[F, PublishCommands[Stream[F, *], K, V]] = {
+  ): Resource[F, PublishCommands[F, Stream[F, *], K, V]] = {
     val (acquire, release) = acquireAndRelease[F, K, V](client, codec)
     Resource.make(acquire)(release).map(new Publisher[F, K, V](_))
   }
@@ -85,10 +84,10 @@ object PubSub {
   def mkSubscriberConnection[F[_]: Async: FutureLift: Log, K, V](
       client: RedisClient,
       codec: RedisCodec[K, V]
-  ): Resource[F, SubscribeCommands[Stream[F, *], K, V]] = {
+  ): Resource[F, SubscribeCommands[F, Stream[F, *], K, V]] = {
     val (acquire, release) = acquireAndRelease[F, K, V](client, codec)
     for {
-      state <- Resource.eval(Ref.of[F, PubSubState[F, K, V]](PubSubState(Map.empty, Map.empty)))
+      state <- Resource.eval(PubSubState.make[F, K, V])
       conn <- Resource.make(acquire)(release)
     } yield new Subscriber(state, conn)
   }
