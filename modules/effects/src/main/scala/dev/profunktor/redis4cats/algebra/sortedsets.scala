@@ -66,7 +66,7 @@ trait SortedSetSetter[F[_], K, V] {
   def zAddIncr(key: K, args: Option[ZAddArgs], value: ScoreWithValue[V]): F[Double]
   def zIncrBy(key: K, member: V, amount: Double): F[Double]
   def zInterStore(destination: K, args: Option[ZStoreArgs], keys: K*): F[Long]
-  def zRem(key: K, values: V*): F[Long]
+  def zRem(key: K, value: V, values: V*): F[Long]
   def zRemRangeByLex(key: K, range: ZRange[V]): F[Long]
   def zRemRangeByRank(key: K, start: Long, stop: Long): F[Long]
   def zRemRangeByScore[T: Numeric](key: K, range: ZRange[T]): F[Long]

@@ -476,14 +476,16 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
   override def copy(source: K, destination: K, copyArgs: CopyArgs): F[Boolean] =
     async.flatMap(_.copy(source, destination, copyArgs.asJava).futureLift.map(x => Boolean.box(x)))
 
-  def del(key: K*): F[Long] =
-    async.flatMap(_.del(key: _*).futureLift.map(x => Long.box(x)))
+  def del(k: K, keys: K*): F[Long] =
+    async.flatMap(_.del((k +: keys): _*).futureLift.map(x => Long.box(x)))
 
   override def dump(key: K): F[Option[Array[Byte]]] =
     async.flatMap(_.dump(key).futureLift.map(Option(_)))
 
-  override def exists(key: K*): F[Boolean] =
-    async.flatMap(_.exists(key: _*).futureLift.map(_ == key.size.toLong))
+  override def exists(key: K, keys: K*): F[Boolean] = {
+    val all = key +: keys
+    async.flatMap(_.exists(all: _*).futureLift.map(_ == all.size.toLong))
+  }
 
   /**
     * Expires a key with the given duration. If specified either in MILLISECONDS, MICROSECONDS or NANOSECONDS,
@@ -954,17 +956,17 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
   override def bitPos(key: K, state: Boolean, start: Long, end: Long): F[Long] =
     async.flatMap(_.bitpos(key, state, start, end).futureLift.map(x => Long.box(x)))
 
-  override def bitOpAnd(destination: K, sources: K*): F[Unit] =
-    async.flatMap(_.bitopAnd(destination, sources: _*).futureLift.void)
+  override def bitOpAnd(destination: K, source: K, sources: K*): F[Unit] =
+    async.flatMap(_.bitopAnd(destination, (source +: sources): _*).futureLift.void)
 
   override def bitOpNot(destination: K, source: K): F[Unit] =
     async.flatMap(_.bitopNot(destination, source).futureLift.void)
 
-  override def bitOpOr(destination: K, sources: K*): F[Unit] =
-    async.flatMap(_.bitopOr(destination, sources: _*).futureLift.void)
+  override def bitOpOr(destination: K, source: K, sources: K*): F[Unit] =
+    async.flatMap(_.bitopOr(destination, (source +: sources): _*).futureLift.void)
 
-  override def bitOpXor(destination: K, sources: K*): F[Unit] =
-    async.flatMap(_.bitopXor(destination, sources: _*).futureLift.void)
+  override def bitOpXor(destination: K, source: K, sources: K*): F[Unit] =
+    async.flatMap(_.bitopXor(destination, (source +: sources): _*).futureLift.void)
 
   override def getBit(key: K, offset: Long): F[Option[Long]] =
     async.flatMap(_.getbit(key, offset).futureLift.map(x => Option(Long.unbox(x))))
@@ -976,14 +978,14 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
   override def geoDist(key: K, from: V, to: V, unit: GeoArgs.Unit): F[Double] =
     async.flatMap(_.geodist(key, from, to, unit).futureLift.map(x => Double.box(x)))
 
-  override def geoHash(key: K, values: V*): F[List[Option[String]]] =
+  override def geoHash(key: K, value: V, values: V*): F[List[Option[String]]] =
     async
-      .flatMap(_.geohash(key, values: _*).futureLift)
+      .flatMap(_.geohash(key, (value +: values): _*).futureLift)
       .map(_.asScala.toList.map(x => Option(x.getValue)))
 
-  override def geoPos(key: K, values: V*): F[List[GeoCoordinate]] =
+  override def geoPos(key: K, value: V, values: V*): F[List[GeoCoordinate]] =
     async
-      .flatMap(_.geopos(key, values: _*).futureLift)
+      .flatMap(_.geopos(key, (value +: values): _*).futureLift)
       .map(_.asScala.toList.map(c => GeoCoordinate(c.getX.doubleValue(), c.getY.doubleValue())))
 
   override def geoRadius(key: K, geoRadius: GeoRadius, unit: GeoArgs.Unit): F[Set[V]] =
@@ -1087,8 +1089,8 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
     res.map(x => Long.box(x))
   }
 
-  override def zRem(key: K, values: V*): F[Long] =
-    async.flatMap(_.zrem(key, values: _*).futureLift.map(x => Long.box(x)))
+  override def zRem(key: K, value: V, values: V*): F[Long] =
+    async.flatMap(_.zrem(key, (value +: values): _*).futureLift.map(x => Long.box(x)))
 
   override def zRemRangeByLex(key: K, range: ZRange[V]): F[Long] =
     async

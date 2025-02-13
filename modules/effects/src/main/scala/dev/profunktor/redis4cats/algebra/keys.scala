@@ -25,9 +25,9 @@ import scala.concurrent.duration.FiniteDuration
 trait KeyCommands[F[_], K] {
   def copy(source: K, destination: K): F[Boolean]
   def copy(source: K, destination: K, copyArgs: CopyArgs): F[Boolean]
-  def del(key: K*): F[Long]
+  def del(k: K, keys: K*): F[Long]
   def dump(key: K): F[Option[Array[Byte]]]
-  def exists(key: K*): F[Boolean]
+  def exists(key: K, keys: K*): F[Boolean]
   def expire(key: K, expiresIn: FiniteDuration): F[Boolean]
   def expire(key: K, expiresIn: FiniteDuration, expireExistenceArg: ExpireExistenceArg): F[Boolean]
   def expireAt(key: K, at: Instant): F[Boolean]
