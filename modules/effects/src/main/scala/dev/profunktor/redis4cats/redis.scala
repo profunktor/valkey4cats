@@ -459,8 +459,9 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
   def sync: F[RedisClusterSyncCommands[K, V]] =
     if (cluster) conn.clusterSync else conn.sync.widen
 
-  /** ***************************** Keys API ************************************
-    */
+  // format: off
+  /******************************* Keys API *************************************/
+  // format: on
   override def copy(source: K, destination: K): F[Boolean] =
     async.flatMap(_.copy(source, destination).futureLift.map(x => Boolean.box(x)))
 
@@ -1606,7 +1607,7 @@ private[redis4cats] class BaseRedis[F[_]: FutureLift: MonadThrow: Log, K, V](
       .map(_.asScala.map(_.asScala.toMap).toList)
 
   // format: off
-  /** ***************************** HyperLoglog API **********************************/
+  /******************************* HyperLoglog API **********************************/
   // format: on
   override def pfAdd(key: K, values: V*): F[Long] =
     async.flatMap(_.pfadd(key, values: _*).futureLift.map(Long.box(_)))
