@@ -11,7 +11,7 @@ object Dependencies {
     val keyPool    = "0.4.10"
 
     val lettuce = "6.5.2.RELEASE"
-    val logback = "1.5.15"
+    val logback = "1.5.17"
 
     val kindProjector = "0.13.3"
 
@@ -37,17 +37,17 @@ object Dependencies {
     def reflect(version: String): ModuleID = "org.scala-lang" % "scala-reflect" % version
 
     // Examples libraries
-    val catsEffect    = "org.typelevel" %% "cats-effect" % V.catsEffect
-    val circeCore     = "io.circe" %% "circe-core" % V.circe
-    val circeGeneric  = "io.circe" %% "circe-generic" % V.circe
-    val circeParser   = "io.circe" %% "circe-parser" % V.circe
+    val catsEffect    = "org.typelevel" %% "cats-effect"     % V.catsEffect
+    val circeCore     = "io.circe"      %% "circe-core"      % V.circe
+    val circeGeneric  = "io.circe"      %% "circe-generic"   % V.circe
+    val circeParser   = "io.circe"      %% "circe-parser"    % V.circe
     val log4CatsSlf4j = log4cats("slf4j")
     val logback       = "ch.qos.logback" % "logback-classic" % V.logback
 
     // Testing libraries
     val catsLaws        = cats("core")
     val catsTestKit     = cats("testkit")
-    val munitCore       = "org.scalameta" %% "munit" % V.munit
+    val munitCore       = "org.scalameta" %% "munit"            % V.munit
     val munitScalacheck = "org.scalameta" %% "munit-scalacheck" % V.munitScalacheck
   }
 
