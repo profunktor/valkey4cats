@@ -72,14 +72,13 @@ class RedisStream[F[_]: Sync, K, V](redis: RedisCommands[F, K, V]) extends Strea
     redis.xAdd(msg.key, msg.body, msg.args)
 
   override def read(
-      keys: Set[K],
+      streams: Set[XReadOffsets[K]],
       chunkSize: Int,
-      initialOffset: K => XReadOffsets[K],
       block: Option[Duration],
       count: Option[Long],
       restartOnTimeout: RestartOnTimeout
   ): Stream[F, StreamMessage[K, V]] = {
-    val initialOffsets = keys.map(k => k -> initialOffset(k)).toMap
+    val initialOffsets = streams.map(o => o.key -> o).toMap
     Stream.eval(Ref.of[F, Map[K, XReadOffsets[K]]](initialOffsets)).flatMap { offsets =>
       val streamMessages =
         Stream

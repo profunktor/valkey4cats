@@ -51,9 +51,8 @@ trait Streaming[F[_], S[_], K, V] {
   def append: S[XAddMessage[K, V]] => S[MessageId]
   def append(msg: XAddMessage[K, V]): F[MessageId]
   def read(
-    keys: Set[K],
+    streams: Set[XReadOffsets[K]],
     chunkSize: Int,
-    initialOffset: K => XReadOffsets[K] = XReadOffsets.All[K],
     block: Option[Duration] = Some(Duration.Zero),
     count: Option[Long] = None,
     restartOnTimeout: RestartOnTimeout = RestartOnTimeout.always
@@ -113,7 +112,7 @@ object StreamingDemo2 extends IOApp.Simple {
     for {
       redis <- Stream.resource(Redis[IO].simple(redisURI, stringCodec))
       streaming = RedisStream[IO, String, String](redis)
-      message <- streaming.read(Set(streamKey1, streamKey2), chunkSize = 1)
+      message <- streaming.read(XReadOffsets.all(streamKey1, streamKey2), chunkSize = 1)
       _ <- Stream.eval(IO.println(message))
     } yield ()
 

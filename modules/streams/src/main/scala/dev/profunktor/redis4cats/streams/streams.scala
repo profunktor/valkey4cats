@@ -43,9 +43,8 @@ trait Streaming[F[_], S[_], K, V] {
     *   https://redis.io/commands/xread
     */
   def read(
-      keys: Set[K],
+      streams: Set[XReadOffsets[K]],
       chunkSize: Int,
-      initialOffset: K => XReadOffsets[K] = XReadOffsets.All[K],
       block: Option[Duration] = Some(Duration.Zero),
       count: Option[Long] = None,
       restartOnTimeout: RestartOnTimeout = RestartOnTimeout.always

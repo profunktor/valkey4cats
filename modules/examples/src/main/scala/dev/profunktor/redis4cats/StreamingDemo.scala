@@ -19,6 +19,7 @@ package dev.profunktor.redis4cats
 import cats.effect.IO
 import cats.syntax.parallel._
 import dev.profunktor.redis4cats.effect.Log.NoOp._
+import dev.profunktor.redis4cats.effects.XReadOffsets
 import dev.profunktor.redis4cats.streams.RedisStream
 import dev.profunktor.redis4cats.streams.data.XAddMessage
 import fs2.Stream
@@ -48,7 +49,7 @@ object StreamingDemo extends LoggerIOApp {
     for {
       redis <- Stream.resource(Redis[IO].simple(redisURI, stringCodec))
       streaming = RedisStream[IO, String, String](redis)
-      message <- streaming.read(Set(streamKey1, streamKey2), chunkSize = 1)
+      message <- streaming.read(XReadOffsets.all(streamKey1, streamKey2), chunkSize = 1)
       _ <- Stream.eval(IO.println(message))
     } yield ()
 

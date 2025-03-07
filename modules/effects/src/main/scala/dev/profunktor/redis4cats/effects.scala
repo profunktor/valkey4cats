@@ -298,13 +298,29 @@ object effects {
   }
 
   object XReadOffsets {
+
+    def all[K](keys: K*): Set[XReadOffsets[K]]                    = All(keys: _*).map(identity)
+    def latest[K](keys: K*): Set[XReadOffsets[K]]                 = Latest(keys: _*).map(identity)
+    def custom[K](offset: String, keys: K*): Set[XReadOffsets[K]] = Custom(offset, keys: _*).map(identity)
+
     case class All[K](key: K) extends XReadOffsets[K] {
       override def offset: String = "0"
     }
+    object All {
+      def apply[K](keys: K*): Set[All[K]] = keys.map(All(_)).toSet
+    }
+
     case class Latest[K](key: K) extends XReadOffsets[K] {
       override def offset: String = "$"
     }
+    object Latest {
+      def apply[K](keys: K*): Set[Latest[K]] = keys.map(Latest(_)).toSet
+    }
+
     case class Custom[K](key: K, offset: String) extends XReadOffsets[K]
+    object Custom {
+      def apply[K](offset: String, keys: K*): Set[Custom[K]] = keys.map(Custom(_, offset)).toSet
+    }
   }
 
   final case class StreamMessage[K, V](id: MessageId, key: K, body: Map[K, V])

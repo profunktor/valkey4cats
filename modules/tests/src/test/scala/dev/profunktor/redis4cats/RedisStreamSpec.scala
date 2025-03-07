@@ -18,6 +18,7 @@ package dev.profunktor.redis4cats
 
 import cats.effect.IO
 import cats.implicits.toTraverseOps
+import dev.profunktor.redis4cats.effects.XReadOffsets
 import dev.profunktor.redis4cats.streams.data.XAddMessage
 
 import scala.concurrent.duration.DurationInt
@@ -39,7 +40,7 @@ class RedisStreamSpec extends Redis4CatsFunSuite(false) {
     timeoutingOperationTest { (options, restartOnTimeout) =>
       fs2.Stream.resource(withRedisStreamOptionsResource(options)).flatMap { case (readStream, _) =>
         // This stream has no data and previously reading from such stream would fail with an exception
-        readStream.read(Set("test-stream-expiration"), 1, restartOnTimeout = restartOnTimeout)
+        readStream.read(XReadOffsets.all("test-stream-expiration"), 1, restartOnTimeout = restartOnTimeout)
       }
     }
   }
@@ -48,7 +49,7 @@ class RedisStreamSpec extends Redis4CatsFunSuite(false) {
     IO.fromFuture {
       IO {
         withRedisStream { (readStream, writeStream) =>
-          val read = readStream.read(Set(streamKey), 1)
+          val read = readStream.read(XReadOffsets.all(streamKey), 1)
           val write =
             writeStream.append(fs2.Stream(XAddMessage(streamKey, Map("hello" -> "world"))).repeatN(length))
 
