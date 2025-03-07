@@ -57,10 +57,13 @@ class RedisStreamSpec extends Redis4CatsFunSuite(false) {
             .take(length)
             .interruptAfter(3.seconds)
             .compile
-            .lastOrError
-            .map { read =>
-              assertEquals(read.key, streamKey)
-              assertEquals(read.body, Map("hello" -> "world"))
+            .toList
+            .map { reads =>
+              assertEquals(reads.size, length.toInt)
+              reads.foreach { read =>
+                assertEquals(read.key, streamKey)
+                assertEquals(read.body, Map("hello" -> "world"))
+              }
             }
         }
       }
