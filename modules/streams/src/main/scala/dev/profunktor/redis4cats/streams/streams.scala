@@ -36,8 +36,8 @@ trait Streaming[F[_], S[_], K, V] {
 
   def append(msg: XAddMessage[K, V]): F[MessageId]
 
-  /** Read data from one or multiple streams, only returning entries with an ID greater than the last received ID
-    * reported by the caller.
+  /** Read data from one or multiple streams, returning an entry per stream with an ID greater than the last received
+    * ID. ID's are initialized with initialOffset field.
     *
     * @see
     *   https://redis.io/commands/xread
