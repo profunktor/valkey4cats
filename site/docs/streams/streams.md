@@ -76,6 +76,7 @@ block duration is set.
 ```scala mdoc:silent
 import cats.effect.{ IO, IOApp }
 import cats.syntax.all._
+import dev.profunktor.redis4cats.Redis
 import dev.profunktor.redis4cats.data._
 import dev.profunktor.redis4cats.log4cats._
 import dev.profunktor.redis4cats.streams.RedisStream
