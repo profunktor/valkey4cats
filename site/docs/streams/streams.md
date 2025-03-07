@@ -80,6 +80,7 @@ import dev.profunktor.redis4cats.Redis
 import dev.profunktor.redis4cats.data._
 import dev.profunktor.redis4cats.log4cats._
 import dev.profunktor.redis4cats.streams.RedisStream
+import dev.profunktor.redis4cats.effects.XReadOffsets
 import dev.profunktor.redis4cats.streams.data._
 import fs2.Stream
 import org.typelevel.log4cats.Logger
