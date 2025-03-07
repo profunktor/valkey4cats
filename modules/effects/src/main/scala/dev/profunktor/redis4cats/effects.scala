@@ -307,19 +307,19 @@ object effects {
       override def offset: String = "0"
     }
     object All {
-      def apply[K](keys: K*): Set[All[K]] = keys.map(All(_)).toSet
+      def apply[K](keys: K*): Set[All[K]] = keys.map(k => new All[K](k)).toSet
     }
 
     case class Latest[K](key: K) extends XReadOffsets[K] {
       override def offset: String = "$"
     }
     object Latest {
-      def apply[K](keys: K*): Set[Latest[K]] = keys.map(Latest(_)).toSet
+      def apply[K](keys: K*): Set[Latest[K]] = keys.map(k => new Latest[K](k)).toSet
     }
 
     case class Custom[K](key: K, offset: String) extends XReadOffsets[K]
     object Custom {
-      def apply[K](offset: String, keys: K*): Set[Custom[K]] = keys.map(Custom(_, offset)).toSet
+      def apply[K](offset: String, keys: K*): Set[Custom[K]] = keys.map(k => new Custom[K](k, offset)).toSet
     }
   }
 
