@@ -18,18 +18,20 @@ package dev.profunktor.redis4cats
 package streams
 
 import cats.effect.kernel._
-import cats.syntax.all._
+import dev.profunktor.redis4cats.StreamsInstances._
 import dev.profunktor.redis4cats.connection._
 import dev.profunktor.redis4cats.data._
-import dev.profunktor.redis4cats.effect.{ FutureLift, Log }
+import dev.profunktor.redis4cats.effect.Log
+import dev.profunktor.redis4cats.effects.{ MessageId, StreamMessage, XReadOffsets }
 import dev.profunktor.redis4cats.streams.data._
 import fs2.Stream
 import io.lettuce.core.{ ReadFrom => JReadFrom }
-import dev.profunktor.redis4cats.StreamsInstances._
 
 import scala.concurrent.duration.Duration
 
 object RedisStream {
+
+  def apply[F[_]: Sync, K, V](redis: RedisCommands[F, K, V]): RedisStream[F, K, V] = new RedisStream(redis)
 
   def mkStreamingConnection[F[_]: Async: Log, K, V](
       client: RedisClient,
@@ -40,18 +42,8 @@ object RedisStream {
   def mkStreamingConnectionResource[F[_]: Async: Log, K, V](
       client: RedisClient,
       codec: RedisCodec[K, V]
-  ): Resource[F, Streaming[F, Stream[F, *], K, V]] = {
-    val acquire =
-      FutureLift[F]
-        .lift(client.underlying.connectAsync[K, V](codec.underlying, client.uri.underlying))
-        .map(new RedisRawStreaming(_))
-
-    val release: RedisRawStreaming[F, K, V] => F[Unit] = c =>
-      FutureLift[F].lift(c.client.closeAsync()) *>
-        Log[F].info(s"Releasing Streaming connection: ${client.uri.underlying}")
-
-    Resource.make(acquire)(release).map(rs => new RedisStream(rs))
-  }
+  ): Resource[F, Streaming[F, Stream[F, *], K, V]] =
+    Redis[F].fromClient(client, codec).map(apply[F, K, V])
 
   def mkMasterReplicaConnection[F[_]: Async: Log, K, V](
       codec: RedisCodec[K, V],
@@ -65,22 +57,18 @@ object RedisStream {
   )(readFrom: Option[JReadFrom] = None): Resource[F, Streaming[F, Stream[F, *], K, V]] =
     RedisMasterReplica[F]
       .make(codec, uris: _*)(readFrom)
-      .map(fromMasterReplica[F, K, V](_))
-
-  def fromMasterReplica[F[_]: Async, K, V](
-      connection: RedisMasterReplica[K, V]
-  ): Streaming[F, Stream[F, *], K, V] =
-    new RedisStream(new RedisRawStreaming(connection.underlying))
+      .flatMap(Redis[F].masterReplica)
+      .map(apply[F, K, V])
 
 }
 
-class RedisStream[F[_]: Sync, K, V](rawStreaming: RedisRawStreaming[F, K, V]) extends Streaming[F, Stream[F, *], K, V] {
+class RedisStream[F[_]: Sync, K, V](redis: RedisCommands[F, K, V]) extends Streaming[F, Stream[F, *], K, V] {
 
-  private[streams] def nextOffset(key: K, msg: XReadMessage[K, V]): StreamingOffset[K] =
-    StreamingOffset.Custom(key, msg.id.value)
+  private[streams] def nextOffset(key: K, msg: StreamMessage[K, V]): XReadOffsets[K] =
+    XReadOffsets.Custom(key, msg.id.value)
 
-  private[streams] def offsetsByKey(iter: Iterable[XReadMessage[K, V]]): Iterator[(K, StreamingOffset[K])] = {
-    val map = collection.mutable.Map.empty[K, XReadMessage[K, V]]
+  private[streams] def offsetsByKey(iter: Iterable[StreamMessage[K, V]]): Iterator[(K, XReadOffsets[K])] = {
+    val map = collection.mutable.Map.empty[K, StreamMessage[K, V]]
     iter.iterator.foreach(msg => map += msg.key -> msg)
     map.iterator.map { case (key, msg) => key -> nextOffset(key, msg) }
   }
@@ -89,22 +77,22 @@ class RedisStream[F[_]: Sync, K, V](rawStreaming: RedisRawStreaming[F, K, V]) ex
     _.evalMap(append)
 
   override def append(msg: XAddMessage[K, V]): F[MessageId] =
-    rawStreaming.xAdd(msg.key, msg.body, msg.approxMaxlen, msg.minId)
+    redis.xAdd(msg.key, msg.body, msg.args)
 
   override def read(
       keys: Set[K],
       chunkSize: Int,
-      initialOffset: K => StreamingOffset[K],
+      initialOffset: K => XReadOffsets[K],
       block: Option[Duration],
       count: Option[Long],
       restartOnTimeout: RestartOnTimeout
-  ): Stream[F, XReadMessage[K, V]] = {
+  ): Stream[F, StreamMessage[K, V]] = {
     val initial = keys.map(k => k -> initialOffset(k)).toMap
-    Stream.eval(Ref.of[F, Map[K, StreamingOffset[K]]](initial)).flatMap { ref =>
+    Stream.eval(Ref.of[F, Map[K, XReadOffsets[K]]](initial)).flatMap { ref =>
       def withoutRestarts =
         (for {
           offsets <- Stream.eval(ref.get)
-          list <- Stream.eval(rawStreaming.xRead(offsets.values.toSet, block, count))
+          list <- Stream.eval(redis.xRead(offsets.values.toSet, block, count))
           offsetUpdates = offsetsByKey(list)
           _ <- Stream.eval(ref.update(map => offsetUpdates.foldLeft(map) { case (acc, (k, v)) => acc.updated(k, v) }))
           result <- Stream.fromIterator[F](list.iterator, chunkSize)
