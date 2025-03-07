@@ -18,6 +18,7 @@ package dev.profunktor.redis4cats
 package streams
 
 import cats.effect.kernel._
+import cats.syntax.all._
 import dev.profunktor.redis4cats.StreamsInstances._
 import dev.profunktor.redis4cats.connection._
 import dev.profunktor.redis4cats.data._
@@ -64,15 +65,6 @@ object RedisStream {
 
 class RedisStream[F[_]: Sync, K, V](redis: RedisCommands[F, K, V]) extends Streaming[F, Stream[F, *], K, V] {
 
-  private[streams] def nextOffset(key: K, msg: StreamMessage[K, V]): XReadOffsets[K] =
-    XReadOffsets.Custom(key, msg.id.value)
-
-  private[streams] def offsetsByKey(iter: Iterable[StreamMessage[K, V]]): Iterator[(K, XReadOffsets[K])] = {
-    val map = collection.mutable.Map.empty[K, StreamMessage[K, V]]
-    iter.iterator.foreach(msg => map += msg.key -> msg)
-    map.iterator.map { case (key, msg) => key -> nextOffset(key, msg) }
-  }
-
   override def append: Stream[F, XAddMessage[K, V]] => Stream[F, MessageId] =
     _.evalMap(append)
 
@@ -87,19 +79,27 @@ class RedisStream[F[_]: Sync, K, V](redis: RedisCommands[F, K, V]) extends Strea
       count: Option[Long],
       restartOnTimeout: RestartOnTimeout
   ): Stream[F, StreamMessage[K, V]] = {
-    val initial = keys.map(k => k -> initialOffset(k)).toMap
-    Stream.eval(Ref.of[F, Map[K, XReadOffsets[K]]](initial)).flatMap { ref =>
-      def withoutRestarts =
-        (for {
-          offsets <- Stream.eval(ref.get)
-          list <- Stream.eval(redis.xRead(offsets.values.toSet, block, count))
-          offsetUpdates = offsetsByKey(list)
-          _ <- Stream.eval(ref.update(map => offsetUpdates.foldLeft(map) { case (acc, (k, v)) => acc.updated(k, v) }))
-          result <- Stream.fromIterator[F](list.iterator, chunkSize)
-        } yield result).repeat
+    val initialOffsets = keys.map(k => k -> initialOffset(k)).toMap
+    Stream.eval(Ref.of[F, Map[K, XReadOffsets[K]]](initialOffsets)).flatMap { offsets =>
+      val streamMessages =
+        Stream
+          .eval {
+            for {
+              currentOffsets <- offsets.get
+              messages <- redis.xRead(currentOffsets.values.toSet, block, count)
+              _ <- offsets.set(currentOffsets ++ latestOffsets(messages))
+            } yield messages.iterator
+          }
+          .flatMap(Stream.fromIterator[F](_, chunkSize))
+          .repeat
 
-      restartOnTimeout.wrap(withoutRestarts)
+      restartOnTimeout.wrap(streamMessages)
     }
   }
 
+  private[streams] def latestOffsets(iter: Iterable[StreamMessage[K, V]]) =
+    iter
+      .foldLeft(collection.mutable.Map.empty[K, XReadOffsets[K]]) { case (offsets, msg) =>
+        offsets += msg.key -> XReadOffsets.Custom(msg.key, msg.id.value)
+      }
 }
