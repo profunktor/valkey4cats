@@ -48,13 +48,11 @@ object luaScripting {
     ): F[LuaScript] =
       Resource
         .fromAutoCloseable(
-          Sync[F].delay(
+          Sync[F].blocking(
             scala.io.Source.fromResource(resource = s"$pathToScripts/$resourceName")
           )
         )
-        .evalMap { fileSrc =>
-          Sync[F].delay(fileSrc.getLines().mkString(""))
-        }
+        .evalMap(fileSrc => Sync[F].blocking(fileSrc.mkString))
         .use(make(redis))
 
   }
