@@ -44,7 +44,6 @@ trait Streaming[F[_], S[_], K, V] {
     */
   def read(
       streams: Set[XReadOffsets[K]],
-      chunkSize: Int,
       block: Option[Duration] = Some(Duration.Zero),
       count: Option[Long] = None,
       restartOnTimeout: RestartOnTimeout = RestartOnTimeout.always

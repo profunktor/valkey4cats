@@ -40,7 +40,7 @@ class RedisStreamSpec extends Redis4CatsFunSuite(false) {
     timeoutingOperationTest { (options, restartOnTimeout) =>
       fs2.Stream.resource(withRedisStreamOptionsResource(options)).flatMap { case (readStream, _) =>
         // This stream has no data and previously reading from such stream would fail with an exception
-        readStream.read(XReadOffsets.all("test-stream-expiration"), 1, restartOnTimeout = restartOnTimeout)
+        readStream.read(XReadOffsets.all("test-stream-expiration"), restartOnTimeout = restartOnTimeout)
       }
     }
   }
@@ -49,7 +49,7 @@ class RedisStreamSpec extends Redis4CatsFunSuite(false) {
     IO.fromFuture {
       IO {
         withRedisStream { (readStream, writeStream) =>
-          val read = readStream.read(XReadOffsets.all(streamKey), 1)
+          val read = readStream.read(XReadOffsets.all(streamKey))
           val write =
             writeStream.append(fs2.Stream(XAddMessage(streamKey, Map("hello" -> "world"))).repeatN(length))
 

@@ -49,7 +49,7 @@ object StreamingDemo extends LoggerIOApp {
     for {
       redis <- Stream.resource(Redis[IO].simple(redisURI, stringCodec))
       streaming = RedisStream[IO, String, String](redis)
-      message <- streaming.read(XReadOffsets.all(streamKey1, streamKey2), chunkSize = 1)
+      message <- streaming.read(XReadOffsets.all(streamKey1, streamKey2))
       _ <- Stream.eval(IO.println(message))
     } yield ()
 
