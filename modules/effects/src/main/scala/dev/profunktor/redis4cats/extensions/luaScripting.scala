@@ -18,7 +18,7 @@ package dev.profunktor.redis4cats.extensions
 
 import cats.effect.kernel.{ Resource, Sync }
 import cats.syntax.all._
-import cats.{ Applicative, ApplicativeThrow }
+import cats.{ ApplicativeThrow, Functor }
 import dev.profunktor.redis4cats.algebra.Scripting
 import dev.profunktor.redis4cats.effects.ScriptOutputType
 import io.lettuce.core.RedisNoScriptException
@@ -29,7 +29,7 @@ object luaScripting {
 
   object LuaScript {
 
-    def make[F[_]: Applicative](redis: Scripting[F, _, _])(contents: String): F[LuaScript] =
+    def make[F[_]: Functor](redis: Scripting[F, _, _])(contents: String): F[LuaScript] =
       redis.digest(contents).map(sha => LuaScript(contents, sha))
 
     /** Helper to load a lua script from resources/lua/{resourceName}. The path to the lua scripts can be configured.
