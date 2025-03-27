@@ -17,30 +17,10 @@
 package dev.profunktor.redis4cats
 package streams
 
+import dev.profunktor.redis4cats.effects.XAddArgs
+
 object data {
 
-  final case class XAddMessage[K, V](
-      key: K,
-      body: Map[K, V],
-      approxMaxlen: Option[Long] = None,
-      minId: Option[String] = None
-  )
-  final case class XReadMessage[K, V](id: MessageId, key: K, body: Map[K, V])
-  final case class MessageId(value: String) extends AnyVal
-
-  sealed trait StreamingOffset[K] extends Product with Serializable {
-    def key: K
-    def offset: String
-  }
-
-  object StreamingOffset {
-    case class All[K](key: K) extends StreamingOffset[K] {
-      override def offset: String = "0"
-    }
-    case class Latest[K](key: K) extends StreamingOffset[K] {
-      override def offset: String = "$"
-    }
-    case class Custom[K](key: K, offset: String) extends StreamingOffset[K]
-  }
+  final case class XAddMessage[K, V](key: K, body: Map[K, V], args: XAddArgs = XAddArgs())
 
 }
