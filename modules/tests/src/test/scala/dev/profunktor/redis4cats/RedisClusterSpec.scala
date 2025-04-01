@@ -42,6 +42,8 @@ class RedisClusterSpec extends Redis4CatsFunSuite(true) with TestScenarios {
 
   test("cluster: scripts")(withRedis(scriptsScenario))
 
+  test("cluster: scripts lua extensions")(withRedis(scriptingLuaExtensionsScenario))
+
   test("cluster: functions")(withRedis(functionsScenario))
 
   test("cluster: hyperloglog api")(withRedis(hyperloglogScenario))

@@ -664,6 +664,41 @@ trait TestScenarios { self: FunSuite =>
     } yield ()
   }
 
+  def scriptingLuaExtensionsScenario(redis: RedisCommands[IO, String, String]): IO[Unit] = {
+    import dev.profunktor.redis4cats.extensions.luaScripting._
+
+    for {
+      // hsetAndExpire.lua is an example script
+      hsetAndExpire <- LuaScript.loadFromResources[IO](redis)("hsetAndExpire.lua")
+
+      _ <- redis.hGet(key = "luaExt", field = "x").map(assertEquals(_, None))
+      _ <- redis
+             .evalLua(
+               hsetAndExpire,
+               ScriptOutputType.Integer[String],
+               keys = List("luaExt"),
+               values = List("x", "42", "10")
+             )
+             .map(assertEquals(_, 1L, "1 field, 'x', should be set for key=luaExt"))
+      _ <- redis.hGet(key = "luaExt", field = "x").map(assertEquals(_, "42".some))
+      firstTtl <- redis.ttl("luaExt")
+      _ <- IO(assert(firstTtl.map(_.toSeconds).exists(ttl => ttl > 0 && ttl <= 10)))
+
+      _ <- redis
+             .evalLua(
+               hsetAndExpire,
+               ScriptOutputType.Integer[String],
+               keys = List("luaExt"),
+               values = List("y", "84", "20")
+             )
+             .map(assertEquals(_, 1L, "1 field, 'y', should be set for key=luaExt"))
+      _ <- redis.hGet(key = "luaExt", field = "y").map(assertEquals(_, "84".some))
+      secondTtl <- redis.ttl("luaExt")
+      _ <- IO(assert(secondTtl.map(_.toSeconds).exists(ttl => ttl > 0 && ttl <= 20)))
+      _ <- IO(assert(firstTtl < secondTtl))
+    } yield ()
+  }
+
   def functionsScenario(redis: RedisCommands[IO, String, String]): IO[Unit] = {
     val myFunc =
       """#!lua name=mylib
