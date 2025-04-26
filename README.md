@@ -19,15 +19,14 @@ import dev.profunktor.redis4cats.effect.Log.Stdout.given
 object QuickStart extends IOApp.Simple:
 
   val run: IO[Unit] =
-    Redis[IO].utf8("redis://localhost").use { redis =>
+    Redis[IO].utf8("redis://localhost").use: redis =>
       for
         _ <- redis.set("foo", "123")
         x <- redis.get("foo")
         _ <- redis.setNx("foo", "should not happen")
         y <- redis.get("foo")
-        _ <- IO(println(x === y)) // true
+        _ <- IO(assert(x === y))
       yield ()
-    }
 ```
 
 The API is quite stable and *heavily used in production*. However, binary compatibility is not guaranteed across versions for now.
