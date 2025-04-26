@@ -26,19 +26,19 @@ jobs:
         uses: coursier/cache-action@v6
 
       - name: "Install Nix ❄️"
-        uses: cachix/install-nix-action@v27
+        uses: cachix/install-nix-action@v31.2.0
 
       - name: "Install Cachix ❄️"
-        uses: cachix/cachix-action@v15
+        uses: cachix/cachix-action@v16
         with:
-          name: redis4cats
-          signingKey: "${{ secrets.CACHIX_SIGNING_KEY }}"
+          name: profunktor
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: "Run tests and compile documentation 🚀"
-        run: nix develop -c sbt 'buildRedis4Cats'
+        run: nix run .#sbt -- buildRedis4Cats
 
       - name: "Test for Binary Compatibility 📦"
-        run: nix develop -c sbt 'mimaReportBinaryIssuesIfRelevant'
+        run: nix run .#sbt mimaReportBinaryIssuesIfRelevant
 
       - name: "Shutting down Valkey 🐳"
         run: docker compose down
