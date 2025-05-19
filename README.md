@@ -1,20 +1,22 @@
-redis4cats
-==========
+valkey4cats
+===========
 
-[![CI Status](https://github.com/profunktor/redis4cats/workflows/Scala/badge.svg)](https://github.com/profunktor/redis4cats/actions)
-[![Gitter Chat](https://badges.gitter.im/profunktor-dev/redis4cats.svg)](https://gitter.im/profunktor-dev/redis4cats)
-[![Maven Central](https://img.shields.io/maven-central/v/dev.profunktor/redis4cats-effects_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Credis4cats-effects) <a href="https://typelevel.org/cats/"><img src="https://raw.githubusercontent.com/typelevel/cats/c23130d2c2e4a320ba4cde9a7c7895c6f217d305/docs/src/main/resources/microsite/img/cats-badge.svg" height="40px" align="right" alt="Cats friendly" /></a>
+[![CI Status](https://github.com/profunktor/valkey4cats/workflows/Scala/badge.svg)](https://github.com/profunktor/valkey4cats/actions)
+[![Gitter Chat](https://badges.gitter.im/profunktor-dev/valkey4cats.svg)](https://gitter.im/profunktor-dev/valkey4cats)
+[![Maven Central](https://img.shields.io/maven-central/v/dev.profunktor/valkey4cats-effects_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cvalkey4cats-effects) <a href="https://typelevel.org/cats/"><img src="https://raw.githubusercontent.com/typelevel/cats/c23130d2c2e4a320ba4cde9a7c7895c6f217d305/docs/src/main/resources/microsite/img/cats-badge.svg" height="40px" align="right" alt="Cats friendly" /></a>
 [![Scala Steward badge](https://img.shields.io/badge/Scala_Steward-helping-brightgreen.svg?style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAMAAAARSr4IAAAAVFBMVEUAAACHjojlOy5NWlrKzcYRKjGFjIbp293YycuLa3pYY2LSqql4f3pCUFTgSjNodYRmcXUsPD/NTTbjRS+2jomhgnzNc223cGvZS0HaSD0XLjbaSjElhIr+AAAAAXRSTlMAQObYZgAAAHlJREFUCNdNyosOwyAIhWHAQS1Vt7a77/3fcxxdmv0xwmckutAR1nkm4ggbyEcg/wWmlGLDAA3oL50xi6fk5ffZ3E2E3QfZDCcCN2YtbEWZt+Drc6u6rlqv7Uk0LdKqqr5rk2UCRXOk0vmQKGfc94nOJyQjouF9H/wCc9gECEYfONoAAAAASUVORK5CYII=)](https://scala-steward.org)
 
-Redis client built on top of [Cats Effect](https://typelevel.org/cats-effect/), [Fs2](http://fs2.io/) and the async Java client [Lettuce](https://lettuce.io/).
+[Valkey](https://valkey.io) client built on top of [Cats Effect](https://typelevel.org/cats-effect/), [Fs2](http://fs2.io/) and the async Java client [Lettuce](https://lettuce.io/).
+
+⚠️ Valkey fork in progress ⚠️
 
 ### Quick Start
 
 ```scala
 import cats.effect.*
 import cats.implicits.*
-import dev.profunktor.redis4cats.Redis
-import dev.profunktor.redis4cats.effect.Log.Stdout.given
+import dev.profunktor.valkey4cats.Redis
+import dev.profunktor.valkey4cats.effect.Log.Stdout.given
 
 object QuickStart extends IOApp.Simple:
 
@@ -29,9 +31,7 @@ object QuickStart extends IOApp.Simple:
       yield ()
 ```
 
-The API is quite stable and *heavily used in production*. However, binary compatibility is not guaranteed across versions for now.
-
-If you like it, give it a ⭐ ! If you think we could do better, please [let us know](https://gitter.im/profunktor-dev/redis4cats)!
+If you like it, give it a ⭐ ! If you think we could do better, please [let us know](https://gitter.im/profunktor-dev/valkey4cats)!
 
 ### Versions
 
@@ -39,24 +39,24 @@ The `1.x.x` series is built on Cats Effect 3 whereas the `0.x.x` series is built
 
 ### Dependencies
 
-Add this to your `build.sbt` for the [Effects API](https://redis4cats.profunktor.dev/effects/) (depends on `cats-effect`):
+Add this to your `build.sbt` for the [Effects API](https://valkey4cats.profunktor.dev/effects/) (depends on `cats-effect`):
 
 ```
-libraryDependencies += "dev.profunktor" %% "redis4cats-effects" % Version
+libraryDependencies += "dev.profunktor" %% "valkey4cats-effects" % Version
 ```
 
-Add this for the [Streams API](https://redis4cats.profunktor.dev/streams/) (depends on `fs2` and `cats-effect`):
+Add this for the [Streams API](https://valkey4cats.profunktor.dev/streams/) (depends on `fs2` and `cats-effect`):
 
 ```
-libraryDependencies += "dev.profunktor" %% "redis4cats-streams" % Version
+libraryDependencies += "dev.profunktor" %% "valkey4cats-streams" % Version
 ```
 
 ### Log4cats support
 
-`redis4cats` needs a logger for internal use and provides instances for `log4cats`. It is the recommended logging library:
+`valkey4cats` needs a logger for internal use and provides instances for `log4cats`. It is the recommended logging library:
 
 ```
-libraryDependencies += "dev.profunktor" %% "redis4cats-log4cats" % Version
+libraryDependencies += "dev.profunktor" %% "valkey4cats-log4cats" % Version
 ```
 
 ## Running the tests locally
@@ -81,7 +81,7 @@ The environment section should look like this:
 
 ## Code of Conduct
 
-See the [Code of Conduct](https://redis4cats.profunktor.dev/CODE_OF_CONDUCT)
+See the [Code of Conduct](https://valkey4cats.profunktor.dev/CODE_OF_CONDUCT)
 
 ## Contribution Guidelines
 
