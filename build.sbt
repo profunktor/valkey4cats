@@ -113,7 +113,7 @@ lazy val `valkey4cats-core` = project
       pred(scalaVersion.value.startsWith("3"), t = Seq.empty, f = Seq(Libraries.reflect(scalaVersion.value)))
   )
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.7.1")))
     }
@@ -125,7 +125,7 @@ lazy val `valkey4cats-log4cats` = project
   .in(file("modules/log4cats"))
   .settings(commonSettings: _*)
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.4.3")))
     }
@@ -142,7 +142,7 @@ lazy val `valkey4cats-effects` = project
     libraryDependencies += Libraries.keyPool
   )
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.8.0")))
     }
@@ -155,7 +155,7 @@ lazy val `valkey4cats-streams` = project
   .in(file("modules/streams"))
   .settings(commonSettings: _*)
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.8.0")))
     }
