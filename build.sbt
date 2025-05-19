@@ -12,13 +12,13 @@ Test / parallelExecution := false
 promptTheme := PromptTheme(
   List(
     text("[sbt] ", fg(105)),
-    text(_ => "redis4cats", fg(15)).padRight(" λ ")
+    text(_ => "valkey4cats", fg(15)).padRight(" λ ")
   )
 )
 
 // publishing
 ThisBuild / organization := "dev.profunktor"
-ThisBuild / homepage := Some(url("https://redis4cats.profunktor.dev/"))
+ThisBuild / homepage := Some(url("https://valkey.profunktor.dev/"))
 ThisBuild / licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeCentralHost
 ThisBuild / developers := List(
@@ -38,7 +38,7 @@ def pred[A](p: Boolean, t: => Seq[A], f: => Seq[A]): Seq[A] =
 def getVersion(strVersion: String): Option[(Long, Long)] = CrossVersion.partialVersion(strVersion)
 
 val commonSettings = Seq(
-  organizationName := "Redis client for Cats Effect & Fs2",
+  organizationName := "Valkey client for Cats Effect & Fs2",
   startYear := Some(2018),
   licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
   headerLicense := Some(HeaderLicense.ALv2("2018-2025", "ProfunKtor")),
@@ -75,7 +75,7 @@ val commonSettings = Seq(
   autoAPIMappings := true,
   scalafmtOnCompile := true,
   scmInfo := Some(
-    ScmInfo(url("https://github.com/profunktor/redis4cats"), "scm:git:git@github.com:profunktor/redis4cats.git")
+    ScmInfo(url("https://github.com/profunktor/valkey4cats"), "scm:git:git@github.com:profunktor/valkey4cats.git")
   )
 )
 
@@ -86,13 +86,13 @@ lazy val noPublish = Seq(
   publish / skip := true
 )
 
-lazy val `redis4cats-root` = project
+lazy val `valkey4cats-root` = project
   .in(file("."))
   .aggregate(
-    `redis4cats-core`,
-    `redis4cats-effects`,
-    `redis4cats-streams`,
-    `redis4cats-log4cats`,
+    `valkey4cats-core`,
+    `valkey4cats-effects`,
+    `valkey4cats-streams`,
+    `valkey4cats-log4cats`,
     examples,
     tests,
     microsite
@@ -104,7 +104,7 @@ lazy val `redis4cats-root` = project
   )
   .enablePlugins(ScalaUnidocPlugin)
 
-lazy val `redis4cats-core` = project
+lazy val `valkey4cats-core` = project
   .in(file("modules/core"))
   .settings(commonSettings: _*)
   .settings(libraryDependencies += Libraries.literally)
@@ -113,7 +113,7 @@ lazy val `redis4cats-core` = project
       pred(scalaVersion.value.startsWith("3"), t = Seq.empty, f = Seq(Libraries.reflect(scalaVersion.value)))
   )
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.7.1")))
     }
@@ -121,11 +121,11 @@ lazy val `redis4cats-core` = project
   .settings(Test / parallelExecution := false)
   .enablePlugins(AutomateHeaderPlugin)
 
-lazy val `redis4cats-log4cats` = project
+lazy val `valkey4cats-log4cats` = project
   .in(file("modules/log4cats"))
   .settings(commonSettings: _*)
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.4.3")))
     }
@@ -133,38 +133,38 @@ lazy val `redis4cats-log4cats` = project
   .settings(libraryDependencies += Libraries.log4CatsCore)
   .settings(Test / parallelExecution := false)
   .enablePlugins(AutomateHeaderPlugin)
-  .dependsOn(`redis4cats-core`)
+  .dependsOn(`valkey4cats-core`)
 
-lazy val `redis4cats-effects` = project
+lazy val `valkey4cats-effects` = project
   .in(file("modules/effects"))
   .settings(commonSettings: _*)
   .settings(
     libraryDependencies += Libraries.keyPool
   )
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.8.0")))
     }
   )
   .settings(Test / parallelExecution := false)
   .enablePlugins(AutomateHeaderPlugin)
-  .dependsOn(`redis4cats-core`)
+  .dependsOn(`valkey4cats-core`)
 
-lazy val `redis4cats-streams` = project
+lazy val `valkey4cats-streams` = project
   .in(file("modules/streams"))
   .settings(commonSettings: _*)
   .settings(
-    isMimaEnabled := true,
+    isMimaEnabled := false,
     mimaPreviousArtifacts ~= { prev =>
       prev.filter(artifact => VersionNumber(artifact.revision).matchesSemVer(SemanticSelector(">=1.8.0")))
     }
   )
-  .dependsOn(`redis4cats-effects`)
+  .dependsOn(`valkey4cats-effects`)
   .settings(libraryDependencies += Libraries.fs2Core)
   .settings(Test / parallelExecution := false)
   .enablePlugins(AutomateHeaderPlugin)
-  .dependsOn(`redis4cats-core`)
+  .dependsOn(`valkey4cats-core`)
 
 lazy val examples = project
   .in(file("modules/examples"))
@@ -181,9 +181,9 @@ lazy val examples = project
     )
   )
   .enablePlugins(AutomateHeaderPlugin)
-  .dependsOn(`redis4cats-log4cats`)
-  .dependsOn(`redis4cats-effects`)
-  .dependsOn(`redis4cats-streams`)
+  .dependsOn(`valkey4cats-log4cats`)
+  .dependsOn(`valkey4cats-effects`)
+  .dependsOn(`valkey4cats-streams`)
 
 lazy val tests = project
   .in(file("modules/tests"))
@@ -191,9 +191,9 @@ lazy val tests = project
   .settings(Test / parallelExecution := false)
   .settings(noPublish)
   .enablePlugins(AutomateHeaderPlugin)
-  .dependsOn(`redis4cats-core`)
-  .dependsOn(`redis4cats-effects`)
-  .dependsOn(`redis4cats-streams`)
+  .dependsOn(`valkey4cats-core`)
+  .dependsOn(`valkey4cats-effects`)
+  .dependsOn(`valkey4cats-streams`)
 
 lazy val microsite = project
   .in(file("site"))
@@ -201,11 +201,11 @@ lazy val microsite = project
   .settings(commonSettings: _*)
   .settings(noPublish)
   .settings(
-    micrositeName := "Redis4Cats",
-    micrositeDescription := "Redis client for Cats Effect & Fs2",
+    micrositeName := "Valkey4Cats",
+    micrositeDescription := "Valkey client for Cats Effect & Fs2",
     micrositeAuthor := "ProfunKtor",
     micrositeGithubOwner := "profunktor",
-    micrositeGithubRepo := "redis4cats",
+    micrositeGithubRepo := "valkey4cats",
     micrositeDocumentationUrl := "/api",
     micrositeBaseUrl := "",
     micrositeExtraMdFiles := Map(
@@ -222,7 +222,7 @@ lazy val microsite = project
     ),
     micrositeExtraMdFilesOutput := (Compile / resourceManaged).value / "jekyll",
     micrositeGitterChannel := true,
-    micrositeGitterChannelUrl := "profunktor-dev/redis4cats",
+    micrositeGitterChannelUrl := "profunktor-dev/valkey4cats",
     micrositePushSiteWith := GitHub4s,
     micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
     scalacOptions --= Seq(
@@ -246,10 +246,10 @@ lazy val microsite = project
     ),
     ScalaUnidoc / unidoc / unidocProjectFilter := inAnyProject -- inProjects(examples)
   )
-  .dependsOn(`redis4cats-effects`, `redis4cats-streams`, examples)
+  .dependsOn(`valkey4cats-effects`, `valkey4cats-streams`, examples)
 
 // CI build
+addCommandAlias("ci", ";+test;buildDoc")
 addCommandAlias("buildDoc", ";++2.13.12;mdoc;doc")
-addCommandAlias("buildRedis4Cats", ";+test;buildDoc")
 addCommandAlias("buildSite", ";doc;makeMicrosite")
 addCommandAlias("publishSite", ";doc;publishMicrosite")

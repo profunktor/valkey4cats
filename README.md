@@ -81,7 +81,7 @@ The environment section should look like this:
 
 ## Code of Conduct
 
-See the [Code of Conduct](https://valkey4cats.profunktor.dev/CODE_OF_CONDUCT)
+See the [Code of Conduct](https://valkey4cats.profunktor.dev/CODE_OF_CONDUCT).
 
 ## Contribution Guidelines
 
