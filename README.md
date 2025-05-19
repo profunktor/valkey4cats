@@ -8,7 +8,7 @@ valkey4cats
 
 [Valkey](https://valkey.io) client built on top of [Cats Effect](https://typelevel.org/cats-effect/), [Fs2](http://fs2.io/) and the async Java client [Lettuce](https://lettuce.io/).
 
-⚠️ Valkey fork in progress ⚠️
+⚠️ Valkey fork is currently being updated ⚠️
 
 ### Quick Start
 
