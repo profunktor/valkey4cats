@@ -4,7 +4,7 @@ on:
   pull_request: {}
   push:
     branches:
-      - series/1.x # CE3
+      - main
     paths:
       - "modules/**"
 
@@ -35,7 +35,7 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: "Run tests and compile documentation 🚀"
-        run: nix run .#sbt -- buildRedis4Cats
+        run: nix run .#sbt -- ci
 
       - name: "Test for Binary Compatibility 📦"
         run: nix run .#sbt mimaReportBinaryIssuesIfRelevant

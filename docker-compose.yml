@@ -19,7 +19,7 @@ services:
     environment:
       - DEBUG=false
 
-  RedisCluster:
+  ValkeyCluster:
     restart: always
     image: yisraelu/valkey-cluster:8.0.2
     ports:
