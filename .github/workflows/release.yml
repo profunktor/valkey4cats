@@ -5,6 +5,7 @@ on:
     branches:
       - main
     tags:
+      - "v0.*"
       - "v1.*"
 
 jobs:
