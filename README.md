@@ -4,7 +4,7 @@
 > The API, behavior, and structure are **unstable and will change**.
 >
 > Please **do not open issues or pull requests** at this time.
-> Once the project reaches an initial release, contribution guidelines will be published.
+> Once the project reaches an initial release, contribution guidelines will be published. 
 
 valkey4cats
 ===========
