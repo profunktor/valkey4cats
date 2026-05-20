@@ -1,0 +1,148 @@
+<!DOCTYPE html><html><head><title>Valkey4Cats: Codecs</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ProfunKtor" /><meta name="description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="Valkey4Cats: Codecs" /><meta name="title" property="og:title" content="Valkey4Cats: Codecs" /><meta name="og:site_name" content="Valkey4Cats" /><meta name="og:url" content="https://valkey.profunktor.dev" /><meta name="og:type" content="website" /><meta name="og:description" content="Valkey client for Cats Effect &amp; Glide" /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="Valkey4Cats: Codecs" /><meta name="twitter:image" content="https://valkey.profunktor.dev/img/poster.png" /><meta name="twitter:description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" type="image/png" sizes="16x16" href="/img/favicon16x16.png" /><link rel="icon" type="image/png" sizes="24x24" href="/img/favicon24x24.png" /><link rel="icon" type="image/png" sizes="32x32" href="/img/favicon32x32.png" /><link rel="icon" type="image/png" sizes="48x48" href="/img/favicon48x48.png" /><link rel="icon" type="image/png" sizes="57x57" href="/img/favicon57x57.png" /><link rel="icon" type="image/png" sizes="60x60" href="/img/favicon60x60.png" /><link rel="icon" type="image/png" sizes="64x64" href="/img/favicon64x64.png" /><link rel="icon" type="image/png" sizes="70x70" href="/img/favicon70x70.png" /><link rel="icon" type="image/png" sizes="72x72" href="/img/favicon72x72.png" /><link rel="icon" type="image/png" sizes="76x76" href="/img/favicon76x76.png" /><link rel="icon" type="image/png" sizes="96x96" href="/img/favicon96x96.png" /><link rel="icon" type="image/png" sizes="114x114" href="/img/favicon114x114.png" /><link rel="icon" type="image/png" sizes="120x120" href="/img/favicon120x120.png" /><link rel="icon" type="image/png" sizes="128x128" href="/img/favicon128x128.png" /><link rel="icon" type="image/png" sizes="144x144" href="/img/favicon144x144.png" /><link rel="icon" type="image/png" sizes="150x150" href="/img/favicon150x150.png" /><link rel="icon" type="image/png" sizes="152x152" href="/img/favicon152x152.png" /><link rel="icon" type="image/png" sizes="196x196" href="/img/favicon196x196.png" /><link rel="icon" type="image/png" sizes="310x310" href="/img/favicon310x310.png" /><link rel="icon" type="image/png" sizes="310x150" href="/img/favicon310x150.png" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/light-style.css" /><link rel="stylesheet" href="/css/custom.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><div id="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"></div><span>Valkey4Cats</span></a><button id="main-toggle" class="sidebar-toggle"><span class="close"></span></button></div><div class="sidebar-nav"> <div class="sidebar-nav-item  "><a href="/quickstart.html" title="Quick Start" class="">Quick Start</a></div> <div class="sidebar-nav-item  "><a href="/client.html" title="Client" class="">Client</a></div> <div class="sidebar-nav-item active "><a href="/codecs.html" title="Codecs" class="active">Codecs</a></div> <div class="sidebar-nav-item  "><a href="/error-handling.html" title="Error Handling" class="">Error Handling</a></div> <div class="sidebar-nav-item  "><a href="/effects/" title="Effects API" class="drop-nested">Effects API</a><i class="fa fa-angle-right"></i><div class="sub-section"> <a href="/effects/strings.html" title="Strings" class="">Strings</a> <a href="/effects/hashes.html" title="Hashes" class="">Hashes</a> <a href="/effects/keys.html" title="Keys" class="">Keys</a> <a href="/effects/lists.html" title="Lists" class="">Lists</a> <a href="/effects/sets.html" title="Sets" class="">Sets</a> <a href="/effects/sortedsets.html" title="Sorted Sets" class="">Sorted Sets</a> <a href="/effects/streams.html" title="Streams" class="">Streams</a> <a href="/effects/geo.html" title="Geo" class="">Geo</a> <a href="/effects/bitmaps.html" title="Bitmaps" class="">Bitmaps</a> <a href="/effects/hyperloglog.html" title="HyperLogLog" class="">HyperLogLog</a> <a href="/effects/connection.html" title="Connection" class="">Connection</a> <a href="/effects/server.html" title="Server" class="">Server</a> <a href="/effects/scripting.html" title="Scripting" class="">Scripting</a></div></div></div></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="search-nav"><div id="search-dropdown"><label><i class="fa fa-search"></i>Search</label><input id="search-bar" type="text" placeholder="Enter keywords here..." onclick="displayToggleSearch(event)" /><ul id="search-dropdown-content" class="dropdown dropdown-content"></ul></div></li><li id="gh-eyes-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-eye"></i><span>Watchers<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-star-o"></i><span>Stars<span id="stars" class="label label-default">--</span></span></a></li></ul></div></div></div></div><div id="content" data-github-owner="profunktor" data-github-repo="valkey4cats"><div class="content-wrapper"><section><h1 id="codecs">Codecs</h1>
+
+<p>Valkey is a key-value store, and as such, it is commonly used to store simple values in a “stringy” form. Valkey4Cats parameterizes the type of keys and values using a <code class="language-plaintext highlighter-rouge">Codec[A]</code> type class that handles encoding/decoding to and from Glide’s internal <code class="language-plaintext highlighter-rouge">GlideString</code> format.</p>
+
+<h2 id="built-in-codecs">Built-in Codecs</h2>
+
+<p>Valkey4Cats provides the following codecs out of the box:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Codec[String]</code></td>
+      <td>UTF-8 encoded strings (most common)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Codec[Array[Byte]]</code></td>
+      <td>Raw byte array pass-through</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Codec[Long]</code></td>
+      <td>Long integers (stored as string representation)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Codec[Int]</code></td>
+      <td>Integers (stored as string representation)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Codec[Double]</code></td>
+      <td>Double-precision floats (stored as string representation)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="using-codecs">Using codecs</h2>
+
+<p>The most common usage is with <code class="language-plaintext highlighter-rouge">String</code> keys and values, which is what <code class="language-plaintext highlighter-rouge">utf8</code> provides:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.effect.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.Valkey</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.effect.Log</span>
+
+<span class="n">given</span> <span class="nc">Log</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Log</span><span class="o">.</span><span class="py">Stdout</span><span class="o">.</span><span class="py">instance</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span>
+
+<span class="c1">// Uses Codec[String] for both keys and values</span>
+<span class="k">val</span> <span class="nv">utf8Api</span> <span class="k">=</span> <span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">utf8</span><span class="o">(</span><span class="s">"valkey://localhost:6379"</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>For other types, use <code class="language-plaintext highlighter-rouge">simple</code> which resolves codecs implicitly:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.effect.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.Valkey</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.codec.Codec</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.effect.Log</span>
+
+<span class="n">given</span> <span class="nc">Log</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Log</span><span class="o">.</span><span class="py">Stdout</span><span class="o">.</span><span class="py">instance</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span>
+
+<span class="c1">// String keys, Long values</span>
+<span class="k">val</span> <span class="nv">longApi</span> <span class="k">=</span> <span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">simple</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">Long</span><span class="o">](</span><span class="s">"valkey://localhost:6379"</span><span class="o">)</span>
+
+<span class="c1">// String keys, byte array values</span>
+<span class="k">val</span> <span class="nv">bytesApi</span> <span class="k">=</span> <span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">simple</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">Array</span><span class="o">[</span><span class="kt">Byte</span><span class="o">]](</span><span class="s">"valkey://localhost:6379"</span><span class="o">)</span>
+</code></pre></div></div>
+
+<h2 id="custom-codecs">Custom codecs</h2>
+
+<p>You can create a <code class="language-plaintext highlighter-rouge">Codec</code> for any type by implementing the <code class="language-plaintext highlighter-rouge">encode</code> and <code class="language-plaintext highlighter-rouge">decode</code> methods:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.codec.Codec</span>
+<span class="k">import</span> <span class="nn">glide.api.models.GlideString</span>
+<span class="k">import</span> <span class="nn">java.nio.charset.StandardCharsets</span>
+
+<span class="c1">// A codec for a custom ID type</span>
+<span class="k">case</span> <span class="k">class</span> <span class="nc">UserId</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="n">given</span> <span class="nc">Codec</span><span class="o">[</span><span class="kt">UserId</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Codec</span><span class="o">[</span><span class="kt">UserId</span><span class="o">]</span><span class="k">:</span>
+  <span class="kt">def</span> <span class="kt">encode</span><span class="o">(</span><span class="kt">value:</span> <span class="kt">UserId</span><span class="o">)</span><span class="kt">:</span> <span class="kt">GlideString</span> <span class="o">=</span>
+    <span class="nv">GlideString</span><span class="o">.</span><span class="py">of</span><span class="o">(</span><span class="nv">value</span><span class="o">.</span><span class="py">value</span><span class="o">.</span><span class="py">getBytes</span><span class="o">(</span><span class="nv">StandardCharsets</span><span class="o">.</span><span class="py">UTF_8</span><span class="o">))</span>
+  <span class="k">def</span> <span class="nf">decode</span><span class="o">(</span><span class="n">gs</span><span class="k">:</span> <span class="kt">GlideString</span><span class="o">)</span><span class="k">:</span> <span class="kt">UserId</span> <span class="o">=</span>
+    <span class="nc">UserId</span><span class="o">(</span><span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="nv">gs</span><span class="o">.</span><span class="py">getBytes</span><span class="o">(),</span> <span class="nv">StandardCharsets</span><span class="o">.</span><span class="py">UTF_8</span><span class="o">))</span>
+</code></pre></div></div>
+
+<h2 id="json-codecs">JSON codecs</h2>
+
+<p>For JSON serialization, you can derive a codec using your preferred JSON library. For example, with Circe:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.codec.Codec</span>
+<span class="k">import</span> <span class="nn">glide.api.models.GlideString</span>
+<span class="k">import</span> <span class="nn">io.circe.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">io.circe.syntax.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">io.circe.parser.decode</span> <span class="n">as</span> <span class="n">jsonDecode</span>
+<span class="k">import</span> <span class="nn">java.nio.charset.StandardCharsets</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">User</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span> <span class="n">derives</span> <span class="nv">Encoder</span><span class="o">.</span><span class="py">AsObject</span><span class="o">,</span> <span class="nc">Decoder</span>
+
+<span class="n">given</span> <span class="nc">Codec</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Codec</span><span class="o">[</span><span class="kt">User</span><span class="o">]</span><span class="k">:</span>
+  <span class="kt">def</span> <span class="kt">encode</span><span class="o">(</span><span class="kt">value:</span> <span class="kt">User</span><span class="o">)</span><span class="kt">:</span> <span class="kt">GlideString</span> <span class="o">=</span>
+    <span class="nv">GlideString</span><span class="o">.</span><span class="py">of</span><span class="o">(</span><span class="nv">value</span><span class="o">.</span><span class="py">asJson</span><span class="o">.</span><span class="py">noSpaces</span><span class="o">.</span><span class="py">getBytes</span><span class="o">(</span><span class="nv">StandardCharsets</span><span class="o">.</span><span class="py">UTF_8</span><span class="o">))</span>
+  <span class="k">def</span> <span class="nf">decode</span><span class="o">(</span><span class="n">gs</span><span class="k">:</span> <span class="kt">GlideString</span><span class="o">)</span><span class="k">:</span> <span class="kt">User</span> <span class="o">=</span>
+    <span class="k">val</span> <span class="nv">str</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">String</span><span class="o">(</span><span class="nv">gs</span><span class="o">.</span><span class="py">getBytes</span><span class="o">(),</span> <span class="nv">StandardCharsets</span><span class="o">.</span><span class="py">UTF_8</span><span class="o">)</span>
+    <span class="n">jsonDecode</span><span class="o">[</span><span class="kt">User</span><span class="o">](</span><span class="n">str</span><span class="o">).</span><span class="py">getOrElse</span><span class="o">(</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nc">RuntimeException</span><span class="o">(</span><span class="n">s</span><span class="s">"Failed to decode User from: $str"</span><span class="o">)</span>
+    <span class="o">)</span>
+</code></pre></div></div>
+
+<p>Although it is possible to derive a JSON codec, it is mainly preferred to use a simple codec like <code class="language-plaintext highlighter-rouge">Codec[String]</code> and manage the encoding/decoding yourself (separation of concerns). This way, you can use a single active Valkey connection for more than one type of message.</p>
+
+<h2 id="deriving-codecs-from-existing-ones">Deriving codecs from existing ones</h2>
+
+<p>You can transform an existing codec using <code class="language-plaintext highlighter-rouge">map</code> and <code class="language-plaintext highlighter-rouge">contramap</code> patterns:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.codec.Codec</span>
+<span class="k">import</span> <span class="nn">glide.api.models.GlideString</span>
+
+<span class="c1">// Derive a new codec by transforming an existing one</span>
+<span class="k">def</span> <span class="nf">deriveCodec</span><span class="o">[</span><span class="kt">A</span>, <span class="kt">B</span><span class="o">](</span><span class="n">base</span><span class="k">:</span> <span class="kt">Codec</span><span class="o">[</span><span class="kt">A</span><span class="o">])(</span><span class="n">to</span><span class="k">:</span> <span class="kt">A</span> <span class="o">=&gt;</span> <span class="n">B</span><span class="o">)(</span><span class="n">from</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=&gt;</span> <span class="n">A</span><span class="o">)</span><span class="k">:</span> <span class="kt">Codec</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span> <span class="k">=</span>
+  <span class="k">new</span> <span class="nc">Codec</span><span class="o">[</span><span class="kt">B</span><span class="o">]</span><span class="k">:</span>
+    <span class="kt">def</span> <span class="kt">encode</span><span class="o">(</span><span class="kt">value:</span> <span class="kt">B</span><span class="o">)</span><span class="kt">:</span> <span class="kt">GlideString</span> <span class="o">=</span> <span class="nv">base</span><span class="o">.</span><span class="py">encode</span><span class="o">(</span><span class="nf">from</span><span class="o">(</span><span class="n">value</span><span class="o">))</span>
+    <span class="k">def</span> <span class="nf">decode</span><span class="o">(</span><span class="n">gs</span><span class="k">:</span> <span class="kt">GlideString</span><span class="o">)</span><span class="k">:</span> <span class="kt">B</span> <span class="o">=</span> <span class="nf">to</span><span class="o">(</span><span class="nv">base</span><span class="o">.</span><span class="py">decode</span><span class="o">(</span><span class="n">gs</span><span class="o">))</span>
+
+<span class="c1">// Example: newtype wrapper</span>
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Email</span><span class="o">(</span><span class="n">value</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+
+<span class="n">given</span> <span class="nc">Codec</span><span class="o">[</span><span class="kt">Email</span><span class="o">]</span> <span class="k">=</span> <span class="nf">deriveCodec</span><span class="o">(</span><span class="nc">Codec</span><span class="o">[</span><span class="kt">String</span><span class="o">])(</span><span class="nv">Email</span><span class="o">.</span><span class="py">apply</span><span class="o">)(</span><span class="nv">_</span><span class="o">.</span><span class="py">value</span><span class="o">)</span>
+</code></pre></div></div>
+</section></div></div></div></div><script src="/highlight/highlight.pack.js"></script><script src="/lunr/lunr.js"></script><script>
+// For all code blocks, copy the language from the containing div
+// to the inner code tag (where hljs expects it to be)
+const langPrefix = 'language-';
+document.querySelectorAll(`div[class^='${langPrefix}']`).forEach(function(div) {
+  div.classList.forEach(function(cssClass) {
+    if (cssClass.startsWith(langPrefix)) {
+      const lang = cssClass.substring(langPrefix.length);
+      div.querySelectorAll('pre code').forEach(function(code) {
+        code.classList.add(lang);
+      });
+    }
+  });
+});
+
+hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlightingOnLoad();
+      </script><script>console.info('\x57\x65\x62\x73\x69\x74\x65\x20\x62\x75\x69\x6c\x74\x20\x77\x69\x74\x68\x3a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x5f\x5f\x0a\x20\x20\x20\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x5f\x20\x20\x2f\x20\x2f\x5f\x20\x20\x20\x20\x20\x20\x5f\x5f\x5f\x5f\x20\x5f\x5f\x5f\x20\x20\x28\x5f\x29\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x28\x5f\x29\x20\x2f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x0a\x20\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x60\x5f\x5f\x20\x5c\x2f\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x20\x2f\x20\x5f\x5f\x2f\x20\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x0a\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x5f\x2f\x20\x2f\x20\x2f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x5f\x5f\x2f\x20\x2f\x20\x20\x2f\x20\x2f\x5f\x2f\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x20\x2f\x5f\x2f\x20\x20\x5f\x5f\x28\x5f\x5f\x20\x20\x29\x0a\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2e\x5f\x5f\x5f\x2f\x5c\x5f\x5f\x2f\x20\x20\x20\x20\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x2f\x20\x20\x20\x5c\x5f\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x0a\x0a\x68\x74\x74\x70\x73\x3a\x2f\x2f\x34\x37\x64\x65\x67\x2e\x67\x69\x74\x68\x75\x62\x2e\x69\x6f\x2f\x73\x62\x74\x2d\x6d\x69\x63\x72\x6f\x73\x69\x74\x65\x73')</script><script src="/js/search.js"></script><script src="/js/docs.js"></script></body></html>
