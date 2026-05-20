@@ -1,0 +1,139 @@
+syntax = "proto3";
+package connection_request;
+
+message NodeAddress {
+    string host = 1;
+    uint32 port = 2;
+}
+
+enum ReadFrom {
+    Primary = 0;
+    PreferReplica = 1;
+    LowestLatency = 2;
+    AZAffinity = 3;
+    AZAffinityReplicasAndPrimary = 4;
+    AllNodes = 5;
+}
+
+enum TlsMode {
+    NoTls = 0;
+    SecureTls = 1;
+    InsecureTls = 2;
+}
+
+message AuthenticationInfo {
+    string password = 1;
+    string username = 2;
+    optional IamCredentials iam_credentials = 3;
+}
+
+enum ServiceType {
+  ELASTICACHE = 0;
+  MEMORYDB    = 1;
+}
+
+message IamCredentials {
+    string cluster_name = 1;
+    string region = 2;
+    ServiceType service_type = 3;
+    optional uint32 refresh_interval_seconds = 4;
+}
+
+enum ProtocolVersion {
+    RESP3 = 0;
+    RESP2 = 1;
+}
+
+message PeriodicChecksManualInterval {
+    uint32 duration_in_sec = 1;
+}
+
+message PeriodicChecksDisabled {
+}
+
+enum PubSubChannelType {
+    Exact = 0;
+    Pattern = 1;
+    Sharded = 2;
+}
+
+enum CompressionBackend {
+    ZSTD = 0;
+    LZ4 = 1;
+}
+
+enum NodeDiscoveryMode {
+    Standard = 0;
+    Static = 1;
+    DiscoverAll = 2;
+}
+
+message CompressionConfig {
+    bool enabled = 1;
+    CompressionBackend backend = 2;
+    optional int32 compression_level = 3;
+    uint32 min_compression_size = 4;
+    optional uint64 max_decompressed_size = 5;
+}
+
+message PubSubChannelsOrPatterns {
+    repeated bytes channels_or_patterns = 1;
+}
+
+message PubSubSubscriptions {
+    map<uint32, PubSubChannelsOrPatterns> channels_or_patterns_by_type = 1;
+}
+
+message ClientSideCache {
+    string cache_id = 1;
+    uint64 max_cache_kb = 2;
+    uint64 entry_ttl_ms = 3;
+    optional EvictionPolicy eviction_policy = 4;
+    bool enable_metrics = 5;
+}
+
+enum EvictionPolicy {
+    LRU = 0;
+    LFU = 1;
+}
+
+message ConnectionRequest {
+    repeated NodeAddress addresses = 1;
+    TlsMode tls_mode = 2;
+    bool cluster_mode_enabled = 3;
+    uint32 request_timeout = 4;
+    ReadFrom read_from = 5;
+    ConnectionRetryStrategy connection_retry_strategy = 6;
+    AuthenticationInfo authentication_info = 7;
+    uint32 database_id = 8;
+    ProtocolVersion protocol = 9;
+    string client_name = 10;
+    oneof periodic_checks {
+        PeriodicChecksManualInterval periodic_checks_manual_interval = 11;
+        PeriodicChecksDisabled periodic_checks_disabled = 12;
+    }
+    PubSubSubscriptions pubsub_subscriptions = 13;
+    uint32 inflight_requests_limit = 14;
+    string client_az = 15;
+    uint32 connection_timeout = 16;
+    bool lazy_connect = 17;
+    bool refresh_topology_from_initial_nodes = 18;
+    string lib_name = 19;
+    repeated bytes root_certs = 20;
+    optional CompressionConfig compression_config = 21;
+    bytes client_cert = 22;
+    bytes client_key = 23;
+    optional bool tcp_nodelay = 24;
+    optional uint32 pubsub_reconciliation_interval_ms = 25;
+    optional bool read_only = 26;
+    optional ClientSideCache client_side_cache = 27;
+    NodeDiscoveryMode node_discovery_mode = 28;
+    optional string address_resolver_key = 29;
+}
+
+message ConnectionRetryStrategy {
+    uint32 number_of_retries = 1;
+    uint32 factor = 2;
+    uint32 exponent_base = 3;
+    optional uint32 jitter_percent = 4;
+}

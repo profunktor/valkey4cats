@@ -1,34 +1,9 @@
 package dev.profunktor.valkey4cats.model
 
-import glide.api.models.configuration as G
 import scala.concurrent.duration.FiniteDuration
 
 /** Reconnection backoff strategy */
-sealed trait BackOffStrategy { self =>
-
-  private[valkey4cats] def toGlide: G.BackoffStrategy =
-    self match {
-      case BackOffStrategy.FixedDelay(numOfRetries, factor) =>
-        G.BackoffStrategy
-          .builder()
-          .numOfRetries(numOfRetries)
-          .factor(factor.toMillis.toInt)
-          .build()
-      case BackOffStrategy.ExponentialBackoff(
-            numOfRetries,
-            baseFactor,
-            exponentBase,
-            jitterPercent
-          ) =>
-        G.BackoffStrategy
-          .builder()
-          .numOfRetries(numOfRetries)
-          .factor(baseFactor.toMillis.toInt)
-          .exponentBase(exponentBase)
-          .jitterPercent(jitterPercent)
-          .build()
-    }
-}
+sealed trait BackOffStrategy
 
 object BackOffStrategy {
 

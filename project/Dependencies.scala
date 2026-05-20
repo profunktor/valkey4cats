@@ -3,7 +3,6 @@ import sbt.*
 object Dependencies {
   // Versions
   object Versions {
-    val valkeyGlide = "2.4.0"
     val catsCore = "2.13.0"
     val catsEffect = "3.7.0"
     val literally = "1.2.0"
@@ -15,10 +14,6 @@ object Dependencies {
     val munitCatsEffect = "2.2.0"
     val testcontainers = "2.0.5"
   }
-
-  // Glide uber jar (all platforms bundled); POM packaging requires explicit artifact
-  val valkeyGlide = ("io.valkey" % "valkey-glide" % Versions.valkeyGlide)
-    .artifacts(Artifact("valkey-glide", "jar", "jar"))
 
   val catsCore = "org.typelevel" %% "cats-core" % Versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % Versions.catsEffect
@@ -36,7 +31,6 @@ object Dependencies {
   // Dependency groups
   object Groups {
     val core = Seq(
-      valkeyGlide,
       catsCore,
       catsEffect,
       literally,

@@ -4,7 +4,7 @@ import cats.effect.IO
 import dev.profunktor.valkey4cats.arguments.*
 import dev.profunktor.valkey4cats.model.ValkeyResponse
 import dev.profunktor.valkey4cats.model.ValkeyResponse.Ok
-import dev.profunktor.valkey4cats.results.{ClusterScanCursor, InsertResult}
+import dev.profunktor.valkey4cats.results.{ClusterScanCursor, InsertResult, ScoredValue}
 
 class ClusterCommandsSuite extends ClusterTestSuite {
 
@@ -1211,7 +1211,7 @@ class ClusterCommandsSuite extends ClusterTestSuite {
         _ <- valkey.zadd("cl-zrws", Map("a" -> 1.5, "b" -> 2.5))
         result <- valkey.zrangeWithScores("cl-zrws", 0, -1)
         _ <- valkey.del("cl-zrws")
-      } yield assertEquals(result, Ok(List(("a", 1.5), ("b", 2.5))))
+      } yield assertEquals(result, Ok(List(ScoredValue("a", 1.5), ScoredValue("b", 2.5))))
     }
   }
 
@@ -1233,8 +1233,8 @@ class ClusterCommandsSuite extends ClusterTestSuite {
         max <- valkey.zpopmax("cl-zpop")
         _ <- valkey.del("cl-zpop")
       } yield {
-        assertEquals(min, Ok(Some(("a", 1.0))))
-        assertEquals(max, Ok(Some(("c", 3.0))))
+        assertEquals(min, Ok(Some(ScoredValue("a", 1.0))))
+        assertEquals(max, Ok(Some(ScoredValue("c", 3.0))))
       }
     }
   }
@@ -1420,7 +1420,7 @@ class ClusterCommandsSuite extends ClusterTestSuite {
       } yield {
         val Ok(Some((key, elements))) = result: @unchecked
         assertEquals(key, "cl-zmpop")
-        assertEquals(elements.head._1, "a")
+        assertEquals(elements.head.value, "a")
       }
     }
   }
@@ -1712,50 +1712,27 @@ class ClusterCommandsSuite extends ClusterTestSuite {
 
   // ==================== Cluster Scan ====================
 
-  test("clusterScan should iterate over keys") {
+  test("clusterScan should raise UnsupportedOperationException") {
     clusterClient.use { valkey =>
-      for {
-        _ <- valkey.set("cscan-k1", "v1")
-        _ <- valkey.set("cscan-k2", "v2")
-        result <- valkey.clusterScan(ClusterScanCursor.initial)
-        _ <- valkey.del("cscan-k1")
-        _ <- valkey.del("cscan-k2")
-      } yield {
-        val Ok(r) = result: @unchecked
-        assert(r.values.nonEmpty)
-      }
+      valkey
+        .clusterScan(ClusterScanCursor.initial)
+        .map(_ => fail("Expected UnsupportedOperationException"))
+        .handleError {
+          case _: UnsupportedOperationException => ()
+          case e => fail(s"Unexpected error: $e")
+        }
     }
   }
 
-  test("clusterScan with pattern should filter keys") {
+  test("clusterScan with pattern should raise UnsupportedOperationException") {
     clusterClient.use { valkey =>
-      for {
-        _ <- valkey.set("cscan-pat-a", "v1")
-        _ <- valkey.set("cscan-pat-b", "v2")
-        _ <- valkey.set("cscan-other", "v3")
-        result <- valkey.clusterScan(
-          ClusterScanCursor.initial,
-          "cscan-pat-*",
-          100
-        )
-        _ <- valkey.del("cscan-pat-a")
-        _ <- valkey.del("cscan-pat-b")
-        _ <- valkey.del("cscan-other")
-      } yield {
-        val Ok(r) = result: @unchecked
-        assert(r.values.forall(_.startsWith("cscan-pat-")))
-      }
-    }
-  }
-
-  test("clusterScan cursor should report isFinished correctly") {
-    clusterClient.use { valkey =>
-      for {
-        result <- valkey.clusterScan(ClusterScanCursor.initial)
-      } yield {
-        val Ok(r) = result: @unchecked
-        assert(!r.cursor.isFinished || r.values.isEmpty)
-      }
+      valkey
+        .clusterScan(ClusterScanCursor.initial, "pattern-*", 100)
+        .map(_ => fail("Expected UnsupportedOperationException"))
+        .handleError {
+          case _: UnsupportedOperationException => ()
+          case e => fail(s"Unexpected error: $e")
+        }
     }
   }
 

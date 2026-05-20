@@ -49,6 +49,17 @@ sealed abstract class ValkeyUri {
     new URI(s"${scheme.name}://$auth$host:${port.value}$db")
   }
 
+  override def toString: String = {
+    val auth = credentials match {
+      case Some(_: ServerCredentials.Password)         => ":******@"
+      case Some(up: ServerCredentials.UsernamePassword) => s"${up.username}:******@"
+      case Some(_: ServerCredentials.IamAuth)          => ""
+      case None                                        => ""
+    }
+    val db = database.map(d => s"/${d.value}").getOrElse("")
+    s"${scheme.name}://$auth$host:${port.value}$db"
+  }
+
   /** Check if this URI is consistent with another for cluster configuration.
     *
     * Two URIs are considered consistent if they have:

@@ -2,7 +2,6 @@ package dev.profunktor.valkey4cats.model
 
 import cats.ApplicativeThrow
 import com.comcast.ip4s.{Host, Port}
-import glide.api.models.configuration as G
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -33,22 +32,6 @@ sealed abstract class ValkeyClientConfig {
       databaseId: Option[DatabaseId] = this.databaseId
   ): ValkeyClientConfig =
     ValkeyClientConfig.unsafeCreate(common, databaseId)
-
-  /** Convert to Glide's GlideClientConfiguration */
-  private[valkey4cats] def toGlide: G.GlideClientConfiguration = {
-    val builder = G.GlideClientConfiguration.builder()
-    val tlsAdvancedConfig = common.applyToGlideBuilder(builder)
-    databaseId.foreach(id => builder.databaseId(id.value))
-    if (common.connectionTimeout.isDefined || tlsAdvancedConfig.isDefined) {
-      val advancedBuilder = G.AdvancedGlideClientConfiguration.builder()
-      common.connectionTimeout.foreach(timeout =>
-        advancedBuilder.connectionTimeout(timeout.toMillis.toInt)
-      )
-      tlsAdvancedConfig.foreach(advancedBuilder.tlsAdvancedConfiguration)
-      val _ = builder.advancedConfiguration(advancedBuilder.build())
-    }
-    builder.build()
-  }
 
   /** Set address from ip4s types (always valid by construction) */
   def withAddress(

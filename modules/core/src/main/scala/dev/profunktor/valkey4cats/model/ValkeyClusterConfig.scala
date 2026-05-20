@@ -3,7 +3,6 @@ package dev.profunktor.valkey4cats.model
 import cats.{ApplicativeThrow, FlatMap}
 import cats.syntax.all.*
 import com.comcast.ip4s.{Host, Port}
-import glide.api.models.configuration as G
 import scala.concurrent.duration.FiniteDuration
 
 /** Configuration for Valkey cluster client */
@@ -34,28 +33,6 @@ sealed abstract class ValkeyClusterConfig {
         this.refreshTopologyFromInitialNodes
   ): ValkeyClusterConfig =
     ValkeyClusterConfig.unsafeCreate(common, refreshTopologyFromInitialNodes)
-
-  /** Convert to Glide's GlideClusterClientConfiguration */
-  private[valkey4cats] def toGlide: G.GlideClusterClientConfiguration = {
-    val builder = G.GlideClusterClientConfiguration.builder()
-    val tlsAdvancedConfig = common.applyToGlideBuilder(builder)
-    if (
-      common.connectionTimeout.isDefined ||
-      refreshTopologyFromInitialNodes.isDefined ||
-      tlsAdvancedConfig.isDefined
-    ) {
-      val advancedBuilder = G.AdvancedGlideClusterClientConfiguration.builder()
-      common.connectionTimeout.foreach(timeout =>
-        advancedBuilder.connectionTimeout(timeout.toMillis.toInt)
-      )
-      refreshTopologyFromInitialNodes.foreach(
-        advancedBuilder.refreshTopologyFromInitialNodes
-      )
-      tlsAdvancedConfig.foreach(advancedBuilder.tlsAdvancedConfiguration)
-      val _ = builder.advancedConfiguration(advancedBuilder.build())
-    }
-    builder.build()
-  }
 
   def addAddress(host: Host, port: Port): ValkeyClusterConfig =
     copy(common = common.addAddress(host, port))

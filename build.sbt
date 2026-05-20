@@ -4,6 +4,9 @@ import microsites.ExtraMdFileConfig
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+val jdkVersion = sys.props("java.specification.version").toDouble
+val isJdk22Plus = jdkVersion >= 22
+
 // Scala version
 val Scala3 = "3.8.3"
 ThisBuild / scalaVersion := Scala3
@@ -76,7 +79,21 @@ lazy val effects = project
   .settings(commonSettings)
   .settings(
     name := "valkey4cats-effects",
-    libraryDependencies ++= Dependencies.Groups.effects ++ Dependencies.Groups.test
+    libraryDependencies ++= Dependencies.Groups.effects ++ Dependencies.Groups.test,
+    libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+    Compile / PB.targets := Seq(
+      scalapb.gen(flatPackage = true) -> (Compile / sourceManaged).value / "scalapb"
+    ),
+    Compile / scalacOptions ++= {
+      val genDir = (Compile / sourceManaged).value / "scalapb"
+      Seq(s"-Wconf:src=${genDir.toPath.toString}/.*:silent")
+    },
+    fork := true,
+    javaOptions ++= Seq(
+      s"-Dvalkey4cats.native.lib=${(ThisBuild / baseDirectory).value / "native" / "libglide_ffi.dylib"}",
+      "--enable-native-access=ALL-UNNAMED"
+    ),
+    Test / envVars ++= sys.env.get("VALKEY_TEST_URI").map("VALKEY_TEST_URI" -> _).toMap
   )
 
 lazy val log4Cats = project
@@ -86,6 +103,21 @@ lazy val log4Cats = project
   .settings(
     name := "valkey4cats-log4cats",
     libraryDependencies ++= Dependencies.Groups.log4cats
+  )
+
+lazy val benchmarks = project
+  .in(file("modules/benchmarks"))
+  .dependsOn(effects)
+  .enablePlugins(JmhPlugin)
+  .settings(commonSettings)
+  .settings(noPublish)
+  .settings(
+    name := "valkey4cats-benchmarks",
+    fork := true,
+    javaOptions ++= Seq(
+      s"-Dvalkey4cats.native.lib=${(ThisBuild / baseDirectory).value / "native" / "libglide_ffi.dylib"}",
+      "--enable-native-access=ALL-UNNAMED"
+    )
   )
 
 lazy val examples = project
