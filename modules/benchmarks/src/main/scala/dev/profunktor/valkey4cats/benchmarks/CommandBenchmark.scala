@@ -17,10 +17,13 @@ import java.util.concurrent.TimeUnit
 @Fork(1)
 class CommandBenchmark:
 
-  given Log[IO] = Log.Stdout.instance[IO]
+  given Log[IO] = Log.NoOp.instance[IO]
 
   private var valkey: ValkeyCommands[IO, String, String] = uninitialized
   private var cleanup: IO[Unit] = uninitialized
+
+  private val indices10 = (1 to 10).toList
+  private val indices100 = (1 to 100).toList
 
   @Setup(Level.Trial)
   def setup(): Unit =
@@ -41,17 +44,17 @@ class CommandBenchmark:
 
   @Benchmark
   def setBatch10(): Unit =
-    (1 to 10).toList.traverse_(i => valkey.set(s"bench:batch:$i", "v").void)
+    indices10.traverse_(i => valkey.set(s"bench:batch:$i", "v").void)
       .unsafeRunSync()
 
   @Benchmark
   def getBatch10(): Unit =
-    (1 to 10).toList.traverse_(i => valkey.get(s"bench:batch:$i").void)
+    indices10.traverse_(i => valkey.get(s"bench:batch:$i").void)
       .unsafeRunSync()
 
   @Benchmark
   def parallelSet100(): Unit =
-    (1 to 100).toList.parTraverse_(i => valkey.set(s"bench:pipe:$i", "v").void)
+    indices100.parTraverse_(i => valkey.set(s"bench:par:$i", "v").void)
       .unsafeRunSync()
 
   @Benchmark

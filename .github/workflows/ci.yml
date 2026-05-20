@@ -65,14 +65,12 @@ jobs:
       - name: 📋 Print results
         run: |
           echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          nix run .#sbt -- "benchmarks/Jmh/run -i 5 -wi 3 -f 0 -t 1 .*CodecBenchmark" 2>&1 | grep -E "^(Benchmark|Codec)" >> $GITHUB_STEP_SUMMARY || true
-          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Command Benchmarks" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat results.json | python3 -c "
+          python3 -c "
           import json, sys
-          data = json.load(sys.stdin)
+          data = json.load(open('results.json'))
           print(f\"{'Benchmark':<40} {'Mode':<6} {'Score':>10} {'Error':>10} {'Units'}\")
           print('-' * 80)
           for b in data:
@@ -83,6 +81,11 @@ jobs:
               unit = b['primaryMetric']['scoreUnit']
               print(f\"{name:<40} {mode:<6} {score:>10} {error:>10} {unit}\")
           " >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Codec Benchmarks" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          nix run .#sbt -- "benchmarks/Jmh/run -i 5 -wi 3 -f 0 -t 1 .*CodecBenchmark" 2>&1 | grep -E "(Benchmark|CodecBenchmark)" >> $GITHUB_STEP_SUMMARY || true
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: 📤 Upload results
