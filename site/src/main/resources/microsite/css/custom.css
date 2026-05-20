@@ -7,39 +7,58 @@
 }
 
 .doc-content table th {
-  background-color: #f5f5f5;
+  background-color: #f0f4ff;
   font-weight: 600;
   text-align: left;
   padding: 0.6em 0.8em;
-  border-bottom: 2px solid #ddd;
+  border-bottom: 2px solid #6983ff;
 }
 
 .doc-content table td {
   padding: 0.5em 0.8em;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .doc-content table tr:hover {
-  background-color: #fafafa;
+  background-color: #f7fafc;
 }
 
 .doc-content table code {
   font-size: 0.85em;
   padding: 0.15em 0.4em;
-  background-color: #f0f0f0;
+  background-color: #f0f4ff;
   border-radius: 3px;
 }
 
 /* Code blocks */
 .doc-content pre {
   border-radius: 6px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid #e2e8f0;
 }
 
-/* Blockquote styling for warnings */
+/* Blockquote styling for notes */
 .doc-content blockquote {
-  border-left: 4px solid #D82C20;
-  background-color: #fff8f7;
+  border-left: 4px solid #6983ff;
+  background-color: #f0f4ff;
   padding: 0.8em 1.2em;
   margin: 1.5em 0;
+}
+
+/* Navigation active state */
+.nav-item.active a {
+  color: #6983ff !important;
+}
+
+/* Hero/jumbotron */
+.jumbotron {
+  background-color: #1a2026;
+}
+
+/* Links */
+.doc-content a {
+  color: #6983ff;
+}
+
+.doc-content a:hover {
+  color: #4a63d4;
 }

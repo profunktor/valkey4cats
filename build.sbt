@@ -1,6 +1,6 @@
 import com.scalapenos.sbt.prompt.SbtPrompt.autoImport.*
 import com.scalapenos.sbt.prompt.*
-import microsites.ExtraMdFileConfig
+import microsites.{ExtraMdFileConfig, MicrositeFavicon}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -112,14 +112,20 @@ lazy val microsite = project
     micrositeUrl := "https://valkey.profunktor.dev",
     micrositeBaseUrl := "",
     micrositeHighlightTheme := "atom-one-light",
+    micrositeFavicons := Seq(MicrositeFavicon("valkey-favicon.png", "32x32")),
     micrositeGitterChannel := false,
     micrositeDocumentationUrl := "quickstart.html",
     micrositeFooterText := Some(
       """<p>Valkey4Cats is maintained by <a href="https://github.com/profunktor">ProfunKtor</a>. Licensed under Apache 2.0.</p>"""
     ),
     micrositePalette := Map(
-      "brand-primary"   -> "#D82C20",
-      "brand-secondary" -> "#1A1A2E",
+      "brand-primary"   -> "#6983ff",
+      "brand-secondary" -> "#1a2026",
+      "brand-danger"    -> "#e53e3e",
+      "gray-dark"       -> "#2d3748",
+      "gray"            -> "#4a5568",
+      "gray-light"      -> "#e2e8f0",
+      "gray-lighter"    -> "#f7fafc",
       "white-color"     -> "#FFFFFF"
     ),
     micrositeExtraMdFiles := Map(
