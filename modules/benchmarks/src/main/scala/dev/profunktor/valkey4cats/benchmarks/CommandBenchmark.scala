@@ -50,7 +50,7 @@ class CommandBenchmark:
       .unsafeRunSync()
 
   @Benchmark
-  def pipeline100(): Unit =
+  def parallelSet100(): Unit =
     (1 to 100).toList.parTraverse_(i => valkey.set(s"bench:pipe:$i", "v").void)
       .unsafeRunSync()
 
