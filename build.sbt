@@ -88,6 +88,17 @@ lazy val log4Cats = project
     libraryDependencies ++= Dependencies.Groups.log4cats
   )
 
+lazy val benchmarks = project
+  .in(file("modules/benchmarks"))
+  .dependsOn(effects)
+  .enablePlugins(JmhPlugin)
+  .settings(commonSettings)
+  .settings(noPublish)
+  .settings(
+    name := "valkey4cats-benchmarks",
+    fork := true
+  )
+
 lazy val examples = project
   .in(file("modules/examples"))
   .dependsOn(core, effects)
