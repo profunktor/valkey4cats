@@ -40,6 +40,61 @@ jobs:
         if: always()
         run: docker compose down
 
+  benchmark:
+    name: 📊 Benchmark
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🚀 Start Valkey
+        run: docker compose up -d
+
+      - name: 📦 Cache sbt & coursier
+        uses: coursier/cache-action@v6
+
+      - name: ❄️ Install Nix
+        uses: cachix/install-nix-action@v31.2.0
+
+      - name: 📊 Run benchmarks
+        run: |
+          nix run .#sbt -- "benchmarks/Jmh/run -i 5 -wi 3 -f 1 -t 1 -rff results.json -rf json .*CommandBenchmark"
+
+      - name: 📋 Print results
+        run: |
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          nix run .#sbt -- "benchmarks/Jmh/run -i 5 -wi 3 -f 0 -t 1 .*CodecBenchmark" 2>&1 | grep -E "^(Benchmark|Codec)" >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat results.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          print(f\"{'Benchmark':<40} {'Mode':<6} {'Score':>10} {'Error':>10} {'Units'}\")
+          print('-' * 80)
+          for b in data:
+              name = b['benchmark'].split('.')[-1]
+              mode = b['mode']
+              score = f\"{b['primaryMetric']['score']:.3f}\"
+              error = f\"± {b['primaryMetric']['scoreError']:.3f}\" if b['primaryMetric']['scoreError'] else ''
+              unit = b['primaryMetric']['scoreUnit']
+              print(f\"{name:<40} {mode:<6} {score:>10} {error:>10} {unit}\")
+          " >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmh-results
+          path: results.json
+
+      - name: 🧹 Stop Valkey
+        if: always()
+        run: docker compose down
+
   release:
     name: 🚀 Release
     needs: build
