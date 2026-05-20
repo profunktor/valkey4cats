@@ -1,0 +1,146 @@
+<!DOCTYPE html><html><head><title>Valkey4Cats: Bitmaps</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ProfunKtor" /><meta name="description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="Valkey4Cats: Bitmaps" /><meta name="title" property="og:title" content="Valkey4Cats: Bitmaps" /><meta name="og:site_name" content="Valkey4Cats" /><meta name="og:url" content="https://valkey.profunktor.dev" /><meta name="og:type" content="website" /><meta name="og:description" content="Valkey client for Cats Effect &amp; Glide" /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="Valkey4Cats: Bitmaps" /><meta name="twitter:image" content="https://valkey.profunktor.dev/img/poster.png" /><meta name="twitter:description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" type="image/png" sizes="32x32" href="/img/valkey-favicon.png" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/light-style.css" /><link rel="stylesheet" href="/css/custom.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><div id="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"></div><span>Valkey4Cats</span></a><button id="main-toggle" class="sidebar-toggle"><span class="close"></span></button></div><div class="sidebar-nav"> <div class="sidebar-nav-item  "><a href="/quickstart.html" title="Quick Start" class="">Quick Start</a></div> <div class="sidebar-nav-item  "><a href="/client.html" title="Client" class="">Client</a></div> <div class="sidebar-nav-item  "><a href="/codecs.html" title="Codecs" class="">Codecs</a></div> <div class="sidebar-nav-item  "><a href="/error-handling.html" title="Error Handling" class="">Error Handling</a></div> <div class="sidebar-nav-item  open"><a href="/effects/" title="Effects API" class="drop-nested">Effects API</a><i class="fa fa-angle-right"></i><div class="sub-section"> <a href="/effects/strings.html" title="Strings" class="">Strings</a> <a href="/effects/hashes.html" title="Hashes" class="">Hashes</a> <a href="/effects/keys.html" title="Keys" class="">Keys</a> <a href="/effects/lists.html" title="Lists" class="">Lists</a> <a href="/effects/sets.html" title="Sets" class="">Sets</a> <a href="/effects/sortedsets.html" title="Sorted Sets" class="">Sorted Sets</a> <a href="/effects/streams.html" title="Streams" class="">Streams</a> <a href="/effects/geo.html" title="Geo" class="">Geo</a> <a href="/effects/bitmaps.html" title="Bitmaps" class="active">Bitmaps</a> <a href="/effects/hyperloglog.html" title="HyperLogLog" class="">HyperLogLog</a> <a href="/effects/connection.html" title="Connection" class="">Connection</a> <a href="/effects/server.html" title="Server" class="">Server</a> <a href="/effects/scripting.html" title="Scripting" class="">Scripting</a></div></div></div></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="search-nav"><div id="search-dropdown"><label><i class="fa fa-search"></i>Search</label><input id="search-bar" type="text" placeholder="Enter keywords here..." onclick="displayToggleSearch(event)" /><ul id="search-dropdown-content" class="dropdown dropdown-content"></ul></div></li><li id="gh-eyes-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-eye"></i><span>Watchers<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-star-o"></i><span>Stars<span id="stars" class="label label-default">--</span></span></a></li></ul></div></div></div></div><div id="content" data-github-owner="profunktor" data-github-repo="valkey4cats"><div class="content-wrapper"><section><h1 id="bitmaps-api">Bitmaps API</h1>
+
+<p>Purely functional interface for the <a href="https://valkey.io/commands/#bitmap">Bitmaps API</a>.</p>
+
+<p>Bitmaps are not an actual data type, but a set of bit-oriented operations defined on the String type. They allow you to manipulate individual bits within a string value.</p>
+
+<h3 id="bitmap-commands-usage">Bitmap Commands usage</h3>
+
+<p>Once you have acquired a connection you can start using it:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.effect.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.Valkey</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.effect.Log</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.arguments.BitwiseOperation</span>
+
+<span class="n">given</span> <span class="nc">Log</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Log</span><span class="o">.</span><span class="py">Stdout</span><span class="o">.</span><span class="py">instance</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span>
+
+<span class="k">val</span> <span class="nv">program</span><span class="k">:</span> <span class="kt">IO</span><span class="o">[</span><span class="kt">Unit</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">utf8</span><span class="o">(</span><span class="s">"valkey://localhost:6379"</span><span class="o">).</span><span class="py">use</span> <span class="o">{</span> <span class="n">valkey</span> <span class="k">=&gt;</span>
+  <span class="k">for</span>
+    <span class="c1">// SETBIT - set bit at offset</span>
+    <span class="n">prev</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">setbit</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">,</span> <span class="mi">7</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Previous bit at 7: ${prev.toOption}"</span><span class="o">)</span> <span class="c1">// Some(0)</span>
+
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">setbit</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+
+    <span class="c1">// GETBIT - get bit at offset</span>
+    <span class="n">bit</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">getbit</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">,</span> <span class="mi">7</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Bit at 7: ${bit.toOption}"</span><span class="o">)</span> <span class="c1">// Some(1)</span>
+
+    <span class="n">bit0</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">getbit</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Bit at 0: ${bit0.toOption}"</span><span class="o">)</span> <span class="c1">// Some(0)</span>
+
+    <span class="c1">// BITCOUNT - count set bits</span>
+    <span class="n">count</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitcount</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Total set bits: ${count.toOption}"</span><span class="o">)</span> <span class="c1">// Some(2)</span>
+
+    <span class="c1">// BITCOUNT with range</span>
+    <span class="n">rangeCount</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitcount</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Set bits in first byte: ${rangeCount.toOption}"</span><span class="o">)</span>
+
+    <span class="c1">// BITPOS - find first bit set to 1</span>
+    <span class="n">pos</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitpos</span><span class="o">(</span><span class="s">"mybitmap"</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"First 1-bit position: ${pos.toOption}"</span><span class="o">)</span> <span class="c1">// Some(3)</span>
+
+    <span class="c1">// BITOP - bitwise operations between keys</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">setbit</span><span class="o">(</span><span class="s">"bitmap_a"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">setbit</span><span class="o">(</span><span class="s">"bitmap_a"</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">setbit</span><span class="o">(</span><span class="s">"bitmap_b"</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">setbit</span><span class="o">(</span><span class="s">"bitmap_b"</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitop</span><span class="o">(</span><span class="nv">BitwiseOperation</span><span class="o">.</span><span class="py">And</span><span class="o">,</span> <span class="s">"result_and"</span><span class="o">,</span> <span class="s">"bitmap_a"</span><span class="o">,</span> <span class="s">"bitmap_b"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitop</span><span class="o">(</span><span class="nv">BitwiseOperation</span><span class="o">.</span><span class="py">Or</span><span class="o">,</span> <span class="s">"result_or"</span><span class="o">,</span> <span class="s">"bitmap_a"</span><span class="o">,</span> <span class="s">"bitmap_b"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitop</span><span class="o">(</span><span class="nv">BitwiseOperation</span><span class="o">.</span><span class="py">Xor</span><span class="o">,</span> <span class="s">"result_xor"</span><span class="o">,</span> <span class="s">"bitmap_a"</span><span class="o">,</span> <span class="s">"bitmap_b"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bitop</span><span class="o">(</span><span class="nv">BitwiseOperation</span><span class="o">.</span><span class="py">Not</span><span class="o">,</span> <span class="s">"result_not"</span><span class="o">,</span> <span class="s">"bitmap_a"</span><span class="o">)</span>
+
+    <span class="c1">// Verify OR result</span>
+    <span class="n">orBit0</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">getbit</span><span class="o">(</span><span class="s">"result_or"</span><span class="o">,</span> <span class="mi">0</span><span class="o">)</span>
+    <span class="n">orBit1</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">getbit</span><span class="o">(</span><span class="s">"result_or"</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+    <span class="n">orBit2</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">getbit</span><span class="o">(</span><span class="s">"result_or"</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"OR bits [0,1,2]: ${List(orBit0, orBit1, orBit2).map(_.toOption)}"</span><span class="o">)</span>
+    <span class="c1">// [Some(1), Some(1), Some(1)]</span>
+  <span class="nf">yield</span> <span class="o">()</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="available-commands">Available commands</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Method</th>
+      <th>Return type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SETBIT</td>
+      <td><code class="language-plaintext highlighter-rouge">setbit(key, offset, value)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>GETBIT</td>
+      <td><code class="language-plaintext highlighter-rouge">getbit(key, offset)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITCOUNT</td>
+      <td><code class="language-plaintext highlighter-rouge">bitcount(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITCOUNT (range)</td>
+      <td><code class="language-plaintext highlighter-rouge">bitcount(key, start, end)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITCOUNT (index type)</td>
+      <td><code class="language-plaintext highlighter-rouge">bitcount(key, start, end, indexType)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITPOS</td>
+      <td><code class="language-plaintext highlighter-rouge">bitpos(key, bit)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITPOS (start)</td>
+      <td><code class="language-plaintext highlighter-rouge">bitpos(key, bit, start)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITPOS (range)</td>
+      <td><code class="language-plaintext highlighter-rouge">bitpos(key, bit, start, end)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITPOS (index type)</td>
+      <td><code class="language-plaintext highlighter-rouge">bitpos(key, bit, start, end, indexType)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>BITOP</td>
+      <td><code class="language-plaintext highlighter-rouge">bitop(operation, destkey, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+  </tbody>
+</table>
+</section></div></div></div></div><script src="/highlight/highlight.pack.js"></script><script src="/lunr/lunr.js"></script><script>
+// For all code blocks, copy the language from the containing div
+// to the inner code tag (where hljs expects it to be)
+const langPrefix = 'language-';
+document.querySelectorAll(`div[class^='${langPrefix}']`).forEach(function(div) {
+  div.classList.forEach(function(cssClass) {
+    if (cssClass.startsWith(langPrefix)) {
+      const lang = cssClass.substring(langPrefix.length);
+      div.querySelectorAll('pre code').forEach(function(code) {
+        code.classList.add(lang);
+      });
+    }
+  });
+});
+
+hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlightingOnLoad();
+      </script><script>console.info('\x57\x65\x62\x73\x69\x74\x65\x20\x62\x75\x69\x6c\x74\x20\x77\x69\x74\x68\x3a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x5f\x5f\x0a\x20\x20\x20\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x5f\x20\x20\x2f\x20\x2f\x5f\x20\x20\x20\x20\x20\x20\x5f\x5f\x5f\x5f\x20\x5f\x5f\x5f\x20\x20\x28\x5f\x29\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x28\x5f\x29\x20\x2f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x0a\x20\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x60\x5f\x5f\x20\x5c\x2f\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x20\x2f\x20\x5f\x5f\x2f\x20\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x0a\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x5f\x2f\x20\x2f\x20\x2f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x5f\x5f\x2f\x20\x2f\x20\x20\x2f\x20\x2f\x5f\x2f\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x20\x2f\x5f\x2f\x20\x20\x5f\x5f\x28\x5f\x5f\x20\x20\x29\x0a\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2e\x5f\x5f\x5f\x2f\x5c\x5f\x5f\x2f\x20\x20\x20\x20\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x2f\x20\x20\x20\x5c\x5f\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x0a\x0a\x68\x74\x74\x70\x73\x3a\x2f\x2f\x34\x37\x64\x65\x67\x2e\x67\x69\x74\x68\x75\x62\x2e\x69\x6f\x2f\x73\x62\x74\x2d\x6d\x69\x63\x72\x6f\x73\x69\x74\x65\x73')</script><script src="/js/search.js"></script><script src="/js/docs.js"></script></body></html>
