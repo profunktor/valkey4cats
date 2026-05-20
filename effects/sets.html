@@ -1,0 +1,192 @@
+<!DOCTYPE html><html><head><title>Valkey4Cats: Sets</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ProfunKtor" /><meta name="description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="Valkey4Cats: Sets" /><meta name="title" property="og:title" content="Valkey4Cats: Sets" /><meta name="og:site_name" content="Valkey4Cats" /><meta name="og:url" content="https://valkey.profunktor.dev" /><meta name="og:type" content="website" /><meta name="og:description" content="Valkey client for Cats Effect &amp; Glide" /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="Valkey4Cats: Sets" /><meta name="twitter:image" content="https://valkey.profunktor.dev/img/poster.png" /><meta name="twitter:description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" type="image/png" sizes="16x16" href="/img/favicon16x16.png" /><link rel="icon" type="image/png" sizes="24x24" href="/img/favicon24x24.png" /><link rel="icon" type="image/png" sizes="32x32" href="/img/favicon32x32.png" /><link rel="icon" type="image/png" sizes="48x48" href="/img/favicon48x48.png" /><link rel="icon" type="image/png" sizes="57x57" href="/img/favicon57x57.png" /><link rel="icon" type="image/png" sizes="60x60" href="/img/favicon60x60.png" /><link rel="icon" type="image/png" sizes="64x64" href="/img/favicon64x64.png" /><link rel="icon" type="image/png" sizes="70x70" href="/img/favicon70x70.png" /><link rel="icon" type="image/png" sizes="72x72" href="/img/favicon72x72.png" /><link rel="icon" type="image/png" sizes="76x76" href="/img/favicon76x76.png" /><link rel="icon" type="image/png" sizes="96x96" href="/img/favicon96x96.png" /><link rel="icon" type="image/png" sizes="114x114" href="/img/favicon114x114.png" /><link rel="icon" type="image/png" sizes="120x120" href="/img/favicon120x120.png" /><link rel="icon" type="image/png" sizes="128x128" href="/img/favicon128x128.png" /><link rel="icon" type="image/png" sizes="144x144" href="/img/favicon144x144.png" /><link rel="icon" type="image/png" sizes="150x150" href="/img/favicon150x150.png" /><link rel="icon" type="image/png" sizes="152x152" href="/img/favicon152x152.png" /><link rel="icon" type="image/png" sizes="196x196" href="/img/favicon196x196.png" /><link rel="icon" type="image/png" sizes="310x310" href="/img/favicon310x310.png" /><link rel="icon" type="image/png" sizes="310x150" href="/img/favicon310x150.png" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/light-style.css" /><link rel="stylesheet" href="/css/custom.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><div id="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"></div><span>Valkey4Cats</span></a><button id="main-toggle" class="sidebar-toggle"><span class="close"></span></button></div><div class="sidebar-nav"> <div class="sidebar-nav-item  "><a href="/quickstart.html" title="Quick Start" class="">Quick Start</a></div> <div class="sidebar-nav-item  "><a href="/client.html" title="Client" class="">Client</a></div> <div class="sidebar-nav-item  "><a href="/codecs.html" title="Codecs" class="">Codecs</a></div> <div class="sidebar-nav-item  "><a href="/error-handling.html" title="Error Handling" class="">Error Handling</a></div> <div class="sidebar-nav-item  open"><a href="/effects/" title="Effects API" class="drop-nested">Effects API</a><i class="fa fa-angle-right"></i><div class="sub-section"> <a href="/effects/strings.html" title="Strings" class="">Strings</a> <a href="/effects/hashes.html" title="Hashes" class="">Hashes</a> <a href="/effects/keys.html" title="Keys" class="">Keys</a> <a href="/effects/lists.html" title="Lists" class="">Lists</a> <a href="/effects/sets.html" title="Sets" class="active">Sets</a> <a href="/effects/sortedsets.html" title="Sorted Sets" class="">Sorted Sets</a> <a href="/effects/streams.html" title="Streams" class="">Streams</a> <a href="/effects/geo.html" title="Geo" class="">Geo</a> <a href="/effects/bitmaps.html" title="Bitmaps" class="">Bitmaps</a> <a href="/effects/hyperloglog.html" title="HyperLogLog" class="">HyperLogLog</a> <a href="/effects/connection.html" title="Connection" class="">Connection</a> <a href="/effects/server.html" title="Server" class="">Server</a> <a href="/effects/scripting.html" title="Scripting" class="">Scripting</a></div></div></div></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="search-nav"><div id="search-dropdown"><label><i class="fa fa-search"></i>Search</label><input id="search-bar" type="text" placeholder="Enter keywords here..." onclick="displayToggleSearch(event)" /><ul id="search-dropdown-content" class="dropdown dropdown-content"></ul></div></li><li id="gh-eyes-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-eye"></i><span>Watchers<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-star-o"></i><span>Stars<span id="stars" class="label label-default">--</span></span></a></li></ul></div></div></div></div><div id="content" data-github-owner="profunktor" data-github-repo="valkey4cats"><div class="content-wrapper"><section><h1 id="sets-api">Sets API</h1>
+
+<p>Purely functional interface for the <a href="https://valkey.io/commands/#set">Sets API</a>.</p>
+
+<p>Sets are unordered collections of unique string elements.</p>
+
+<h3 id="set-commands-usage">Set Commands usage</h3>
+
+<p>Once you have acquired a connection you can start using it:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.effect.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.Valkey</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.effect.Log</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.model.ValkeyResponse.</span><span class="o">{</span><span class="nc">Ok</span><span class="o">,</span> <span class="nc">Err</span><span class="o">}</span>
+
+<span class="n">given</span> <span class="nc">Log</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Log</span><span class="o">.</span><span class="py">Stdout</span><span class="o">.</span><span class="py">instance</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span>
+
+<span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">utf8</span><span class="o">(</span><span class="s">"valkey://localhost:6379"</span><span class="o">).</span><span class="py">use</span> <span class="o">{</span> <span class="n">valkey</span> <span class="k">=&gt;</span>
+  <span class="k">for</span>
+    <span class="c1">// SADD</span>
+    <span class="n">added</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sadd</span><span class="o">(</span><span class="s">"myset"</span><span class="o">,</span> <span class="s">"hello"</span><span class="o">,</span> <span class="s">"world"</span><span class="o">,</span> <span class="s">"foo"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Added: ${added.toOption}"</span><span class="o">)</span> <span class="c1">// Some(3)</span>
+
+    <span class="c1">// SMEMBERS</span>
+    <span class="n">members</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">smembers</span><span class="o">(</span><span class="s">"myset"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Members: ${members.toOption}"</span><span class="o">)</span>
+
+    <span class="c1">// SISMEMBER</span>
+    <span class="n">isMember</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sismember</span><span class="o">(</span><span class="s">"myset"</span><span class="o">,</span> <span class="s">"hello"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Is member: ${isMember.toOption}"</span><span class="o">)</span> <span class="c1">// Some(true)</span>
+
+    <span class="c1">// SCARD</span>
+    <span class="n">size</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">scard</span><span class="o">(</span><span class="s">"myset"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Size: ${size.toOption}"</span><span class="o">)</span> <span class="c1">// Some(3)</span>
+
+    <span class="c1">// SREM</span>
+    <span class="n">removed</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">srem</span><span class="o">(</span><span class="s">"myset"</span><span class="o">,</span> <span class="s">"foo"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Removed: ${removed.toOption}"</span><span class="o">)</span> <span class="c1">// Some(1)</span>
+
+    <span class="c1">// Set operations: SUNION, SINTER, SDIFF</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sadd</span><span class="o">(</span><span class="s">"set1"</span><span class="o">,</span> <span class="s">"a"</span><span class="o">,</span> <span class="s">"b"</span><span class="o">,</span> <span class="s">"c"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sadd</span><span class="o">(</span><span class="s">"set2"</span><span class="o">,</span> <span class="s">"b"</span><span class="o">,</span> <span class="s">"c"</span><span class="o">,</span> <span class="s">"d"</span><span class="o">)</span>
+
+    <span class="n">union</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sunion</span><span class="o">(</span><span class="s">"set1"</span><span class="o">,</span> <span class="s">"set2"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Union: ${union.toOption}"</span><span class="o">)</span> <span class="c1">// {a, b, c, d}</span>
+
+    <span class="n">inter</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sinter</span><span class="o">(</span><span class="s">"set1"</span><span class="o">,</span> <span class="s">"set2"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Intersection: ${inter.toOption}"</span><span class="o">)</span> <span class="c1">// {b, c}</span>
+
+    <span class="n">diff</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">sdiff</span><span class="o">(</span><span class="s">"set1"</span><span class="o">,</span> <span class="s">"set2"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Difference: ${diff.toOption}"</span><span class="o">)</span> <span class="c1">// {a}</span>
+
+    <span class="c1">// SPOP - random remove</span>
+    <span class="n">popped</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">spop</span><span class="o">(</span><span class="s">"myset"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Popped: ${popped.toOption}"</span><span class="o">)</span>
+
+    <span class="c1">// SRANDMEMBER - random without removing</span>
+    <span class="n">random</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">srandmember</span><span class="o">(</span><span class="s">"myset"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Random member: ${random.toOption}"</span><span class="o">)</span>
+
+    <span class="c1">// SMOVE - move member between sets</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">smove</span><span class="o">(</span><span class="s">"set1"</span><span class="o">,</span> <span class="s">"set2"</span><span class="o">,</span> <span class="s">"a"</span><span class="o">)</span>
+  <span class="nf">yield</span> <span class="o">()</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="available-commands">Available commands</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Method</th>
+      <th>Return type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SADD</td>
+      <td><code class="language-plaintext highlighter-rouge">sadd(key, members*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SREM</td>
+      <td><code class="language-plaintext highlighter-rouge">srem(key, members*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SMEMBERS</td>
+      <td><code class="language-plaintext highlighter-rouge">smembers(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Set[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SISMEMBER</td>
+      <td><code class="language-plaintext highlighter-rouge">sismember(key, member)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Boolean]]</code></td>
+    </tr>
+    <tr>
+      <td>SMISMEMBER</td>
+      <td><code class="language-plaintext highlighter-rouge">smismember(key, members*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[Boolean]]]</code></td>
+    </tr>
+    <tr>
+      <td>SCARD</td>
+      <td><code class="language-plaintext highlighter-rouge">scard(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SUNION</td>
+      <td><code class="language-plaintext highlighter-rouge">sunion(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Set[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SUNIONSTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">sunionstore(dest, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SINTER</td>
+      <td><code class="language-plaintext highlighter-rouge">sinter(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Set[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SINTERSTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">sinterstore(dest, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SINTERCARD</td>
+      <td><code class="language-plaintext highlighter-rouge">sintercard(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SDIFF</td>
+      <td><code class="language-plaintext highlighter-rouge">sdiff(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Set[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SDIFFSTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">sdiffstore(dest, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>SPOP</td>
+      <td><code class="language-plaintext highlighter-rouge">spop(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SPOP COUNT</td>
+      <td><code class="language-plaintext highlighter-rouge">spopCount(key, count)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Set[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SRANDMEMBER</td>
+      <td><code class="language-plaintext highlighter-rouge">srandmember(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SRANDMEMBER COUNT</td>
+      <td><code class="language-plaintext highlighter-rouge">srandmemberCount(key, count)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>SMOVE</td>
+      <td><code class="language-plaintext highlighter-rouge">smove(src, dest, member)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Boolean]]</code></td>
+    </tr>
+    <tr>
+      <td>SSCAN</td>
+      <td><code class="language-plaintext highlighter-rouge">sscan(key, cursor)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[ScanResult[Set[V]]]]</code></td>
+    </tr>
+  </tbody>
+</table>
+</section></div></div></div></div><script src="/highlight/highlight.pack.js"></script><script src="/lunr/lunr.js"></script><script>
+// For all code blocks, copy the language from the containing div
+// to the inner code tag (where hljs expects it to be)
+const langPrefix = 'language-';
+document.querySelectorAll(`div[class^='${langPrefix}']`).forEach(function(div) {
+  div.classList.forEach(function(cssClass) {
+    if (cssClass.startsWith(langPrefix)) {
+      const lang = cssClass.substring(langPrefix.length);
+      div.querySelectorAll('pre code').forEach(function(code) {
+        code.classList.add(lang);
+      });
+    }
+  });
+});
+
+hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlightingOnLoad();
+      </script><script>console.info('\x57\x65\x62\x73\x69\x74\x65\x20\x62\x75\x69\x6c\x74\x20\x77\x69\x74\x68\x3a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x5f\x5f\x0a\x20\x20\x20\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x5f\x20\x20\x2f\x20\x2f\x5f\x20\x20\x20\x20\x20\x20\x5f\x5f\x5f\x5f\x20\x5f\x5f\x5f\x20\x20\x28\x5f\x29\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x28\x5f\x29\x20\x2f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x0a\x20\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x60\x5f\x5f\x20\x5c\x2f\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x20\x2f\x20\x5f\x5f\x2f\x20\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x0a\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x5f\x2f\x20\x2f\x20\x2f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x5f\x5f\x2f\x20\x2f\x20\x20\x2f\x20\x2f\x5f\x2f\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x20\x2f\x5f\x2f\x20\x20\x5f\x5f\x28\x5f\x5f\x20\x20\x29\x0a\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2e\x5f\x5f\x5f\x2f\x5c\x5f\x5f\x2f\x20\x20\x20\x20\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x2f\x20\x20\x20\x5c\x5f\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x0a\x0a\x68\x74\x74\x70\x73\x3a\x2f\x2f\x34\x37\x64\x65\x67\x2e\x67\x69\x74\x68\x75\x62\x2e\x69\x6f\x2f\x73\x62\x74\x2d\x6d\x69\x63\x72\x6f\x73\x69\x74\x65\x73')</script><script src="/js/search.js"></script><script src="/js/docs.js"></script></body></html>
