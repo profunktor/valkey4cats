@@ -1,7 +1,6 @@
 package dev.profunktor.valkey4cats.model
 
-import com.comcast.ip4s.{Host, Port}
-import glide.api.models.{configuration => G}
+import com.comcast.ip4s.*
 
 /** Represents a Valkey server node address using ip4s types for validated host/port */
 sealed abstract class NodeAddress {
@@ -11,20 +10,12 @@ sealed abstract class NodeAddress {
 
   /** The port number */
   def port: Port
-
-  /** Convert to Glide's NodeAddress */
-  private[valkey4cats] def toGlide: G.NodeAddress =
-    G.NodeAddress
-      .builder()
-      .host(host.toString)
-      .port(port.value)
-      .build()
 }
 
 object NodeAddress {
 
   /** Default Valkey port */
-  val DefaultPort: Port = Port.fromInt(6379).get // Safe: 6379 is always valid
+  val DefaultPort: Port = port"6379" 
 
   private final case class NodeAddressImpl(
       host: Host,

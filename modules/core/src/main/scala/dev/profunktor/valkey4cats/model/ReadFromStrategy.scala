@@ -1,18 +1,7 @@
 package dev.profunktor.valkey4cats.model
 
-import glide.api.models.{configuration => G}
-import dev.profunktor.valkey4cats.model.ReadFromStrategy.*
-
 /** Strategy for read operations in cluster/replication setups */
-sealed trait ReadFromStrategy { self =>
-  private[valkey4cats] def toGlide: G.ReadFrom = self match {
-    case Primary       => G.ReadFrom.PRIMARY
-    case PreferReplica => G.ReadFrom.PREFER_REPLICA
-    case AzAffinity    => G.ReadFrom.AZ_AFFINITY
-    case AzAffinityReplicasAndPrimary =>
-      G.ReadFrom.AZ_AFFINITY_REPLICAS_AND_PRIMARY
-  }
-}
+sealed trait ReadFromStrategy
 
 object ReadFromStrategy {
 

@@ -15,6 +15,10 @@ options:
     url: error-handling.html
     menu_section: errorhandling
 
+  - title: Architecture
+    url: architecture.html
+    menu_section: architecture
+
   - title: Effects API
     url: effects/
     menu_section: effectapi

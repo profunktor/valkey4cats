@@ -1,7 +1,6 @@
 package dev.profunktor.valkey4cats.model
 
 import com.comcast.ip4s.{Host, Port}
-import glide.api.models.configuration as G
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -55,25 +54,6 @@ sealed abstract class CommonConfig {
       lazyConnect,
       clientAZ
     )
-
-  private[model] def applyToGlideBuilder(
-      builder: G.BaseClientConfiguration.BaseClientConfigurationBuilder[?, ?]
-  ): Option[G.TlsAdvancedConfiguration] = {
-    addresses.foreach(addr => builder.address(addr.toGlide))
-    val (useTls, tlsAdvancedConfig) = tlsMode.toGlide
-    builder.useTLS(useTls)
-    requestTimeout.foreach(d => builder.requestTimeout(d.toMillis.toInt))
-    credentials.foreach(c => builder.credentials(c.toGlide))
-    readFrom.foreach(r => builder.readFrom(r.toGlide))
-    reconnectStrategy.foreach(s => builder.reconnectStrategy(s.toGlide))
-    clientName.foreach(builder.clientName(_))
-    builder.protocol(protocolVersion.toGlide)
-    inflightRequestsLimit.foreach(builder.inflightRequestsLimit(_))
-    libName.foreach(builder.libName(_))
-    lazyConnect.foreach(builder.lazyConnect(_))
-    clientAZ.foreach(builder.clientAZ(_))
-    tlsAdvancedConfig
-  }
 
   def withAddress(
       host: Host,

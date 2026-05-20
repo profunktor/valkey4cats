@@ -1,16 +1,7 @@
 package dev.profunktor.valkey4cats.model
 
-import glide.api.models.{configuration => G}
-
 /** Redis/Valkey protocol version */
-sealed trait ProtocolVersion { self =>
-
-  private[valkey4cats] def toGlide: G.ProtocolVersion =
-    self match {
-      case ProtocolVersion.RESP2 => G.ProtocolVersion.RESP2
-      case ProtocolVersion.RESP3 => G.ProtocolVersion.RESP3
-    }
-}
+sealed trait ProtocolVersion
 
 object ProtocolVersion {
 

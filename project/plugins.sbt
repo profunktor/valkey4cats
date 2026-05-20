@@ -13,3 +13,5 @@ addSbtPlugin("org.scalameta"  % "sbt-mdoc"        % "2.9.0")
 addSbtPlugin("com.github.sbt" % "sbt-site"        % "1.7.0")
 addSbtPlugin("com.github.sbt" % "sbt-unidoc"      % "0.6.1")
 addSbtPlugin("com.scalapenos" % "sbt-prompt"      % "2.0.0")
+addSbtPlugin("com.thesamet"  % "sbt-protoc"      % "1.0.7")
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.17"

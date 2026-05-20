@@ -1,7 +1,5 @@
 package dev.profunktor.valkey4cats.model
 
-import glide.api.models.configuration as G
-
 /** TLS encryption mode for Valkey connection
   */
 sealed trait TlsMode { self =>
@@ -11,15 +9,6 @@ sealed trait TlsMode { self =>
     case TlsMode.Disabled   => false
     case TlsMode.Enabled(_) => true
   }
-
-  private[valkey4cats] def toGlide
-      : (Boolean, Option[G.TlsAdvancedConfiguration]) =
-    self match {
-      case TlsMode.Disabled =>
-        (false, None)
-      case TlsMode.Enabled(advancedConfig) =>
-        (true, advancedConfig.map(TlsAdvancedConfig.toGlide))
-    }
 }
 
 object TlsMode {
@@ -52,17 +41,6 @@ final case class TlsAdvancedConfig(
 )
 
 object TlsAdvancedConfig {
-
-  private[valkey4cats] def toGlide(
-      config: TlsAdvancedConfig
-  ): G.TlsAdvancedConfiguration = {
-    val builder = G.TlsAdvancedConfiguration.builder()
-
-    config.rootCertificates.foreach(builder.rootCertificates)
-    builder.useInsecureTLS(config.useInsecureTLS)
-
-    builder.build()
-  }
 
   /** Create config with custom root certificates */
   def withRootCertificates(certs: Array[Byte]): TlsAdvancedConfig =

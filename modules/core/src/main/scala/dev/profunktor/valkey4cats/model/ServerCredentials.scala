@@ -1,7 +1,5 @@
 package dev.profunktor.valkey4cats.model
 
-import glide.api.models.configuration as G
-
 /** Authentication credentials for Valkey server
   *
   * Supports:
@@ -9,28 +7,7 @@ import glide.api.models.configuration as G
   * - Username+password authentication (Redis 6.0+/Valkey)
   * - AWS IAM authentication (ElastiCache/MemoryDB)
   */
-sealed abstract class ServerCredentials { self =>
-
-  private[valkey4cats] def toGlide: G.ServerCredentials =
-    self match {
-      case p: ServerCredentials.Password =>
-        G.ServerCredentials
-          .builder()
-          .password(p.password)
-          .build()
-      case up: ServerCredentials.UsernamePassword =>
-        G.ServerCredentials
-          .builder()
-          .username(up.username)
-          .password(up.password)
-          .build()
-      case iam: ServerCredentials.IamAuth =>
-        G.ServerCredentials
-          .builder()
-          .iamConfig(IamAuthConfig.toGlide(iam.config))
-          .build()
-    }
-}
+sealed abstract class ServerCredentials
 
 object ServerCredentials {
 

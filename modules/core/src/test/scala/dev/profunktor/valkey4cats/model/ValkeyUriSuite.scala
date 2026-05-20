@@ -152,4 +152,21 @@ class ValkeyUriSuite extends FunSuite {
     assertEquals(config.addresses.head.port, port"6379")
     assertEquals(config.databaseId.map(_.value), Some(1))
   }
+
+  test("toString should redact password-only credentials") {
+    val uri = ValkeyUri.fromString("valkey://:mypassword@localhost:6379").toOption.get
+    assertEquals(uri.toString, "valkey://:******@localhost:6379")
+    assert(!uri.toString.contains("mypassword"))
+  }
+
+  test("toString should redact username+password credentials") {
+    val uri = ValkeyUri.fromString("valkey://alice:secret@localhost:6379/2").toOption.get
+    assertEquals(uri.toString, "valkey://alice:******@localhost:6379/2")
+    assert(!uri.toString.contains("secret"))
+  }
+
+  test("toString should show URI without credentials when none present") {
+    val uri = ValkeyUri.fromString("valkeys://myhost:6380").toOption.get
+    assertEquals(uri.toString, "valkeys://myhost:6380")
+  }
 }

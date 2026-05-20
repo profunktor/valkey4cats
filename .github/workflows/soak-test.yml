@@ -1,0 +1,36 @@
+name: Weekly Soak Test
+
+on:
+  schedule:
+    - cron: '0 4 * * 1' # Every Monday at 4:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  soak:
+    name: 🧪 Native Memory Soak Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🚀 Start Valkey
+        run: docker compose up -d
+
+      - name: 📦 Cache sbt & coursier
+        uses: coursier/cache-action@v6
+
+      - name: ❄️ Install Nix
+        uses: cachix/install-nix-action@v31.2.0
+
+      - name: 🧪 Run soak tests
+        run: nix run .#sbt -- "effects/testOnly dev.profunktor.valkey4cats.NativeMemorySoakSuite"
+        env:
+          VALKEY_SOAK_TESTS: "true"
+          SBT_OPTS: "-XX:NativeMemoryTracking=summary"
+
+      - name: 🧹 Stop Valkey
+        if: always()
+        run: docker compose down
