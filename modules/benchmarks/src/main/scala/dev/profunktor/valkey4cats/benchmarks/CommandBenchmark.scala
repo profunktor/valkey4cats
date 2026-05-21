@@ -9,6 +9,7 @@ import dev.profunktor.valkey4cats.model.ValkeyResponse
 import org.openjdk.jmh.annotations.*
 import scala.compiletime.uninitialized
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput, Mode.AverageTime))
@@ -22,7 +23,7 @@ class CommandBenchmark:
 
   private var valkey: ValkeyCommands[IO, String, String] = uninitialized
   private var cleanup: IO[Unit] = uninitialized
-  private var invocationCount: Long = 0L
+  private val invocationCount = new AtomicLong(0L)
 
   private val indices10 = (1 to 10).toList
   private val indices100 = (1 to 100).toList
@@ -86,8 +87,7 @@ class CommandBenchmark:
 
   @Benchmark
   def saddSmembers(): Unit =
-    invocationCount += 1
-    val key = s"bench:set:$invocationCount"
+    val key = s"bench:set:${invocationCount.getAndIncrement()}"
     (valkey.sadd(key, "a", "b", "c") *>
       valkey.smembers(key) *>
       valkey.del(key)).void

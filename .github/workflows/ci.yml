@@ -29,7 +29,7 @@ jobs:
         uses: cachix/install-nix-action@v31.2.0
 
       - name: 🧪 Run tests
-        run: nix run .#sbt -- testAll
+        run: nix run .#sbt -- testAll "benchmarks/compile"
 
       - name: 🔍 Check for untracked changes
         run: |
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🚀 Start Valkey
-        run: docker compose up -d
+        run: docker compose up -d SingleNode
 
       - name: 📦 Cache sbt & coursier
         uses: coursier/cache-action@v6
