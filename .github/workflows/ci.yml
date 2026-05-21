@@ -68,19 +68,20 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Command Benchmarks" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          python3 -c "
-          import json, sys
+          python3 - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import json
           data = json.load(open('results.json'))
-          print(f\"{'Benchmark':<40} {'Mode':<6} {'Score':>10} {'Error':>10} {'Units'}\")
+          print(f"{'Benchmark':<40} {'Mode':<6} {'Score':>10} {'Error':>10} {'Units'}")
           print('-' * 80)
           for b in data:
               name = b['benchmark'].split('.')[-1]
               mode = b['mode']
-              score = f\"{b['primaryMetric']['score']:.3f}\"
-              error = f\"± {b['primaryMetric']['scoreError']:.3f}\" if b['primaryMetric']['scoreError'] else ''
+              score = f"{b['primaryMetric']['score']:.3f}"
+              err = b['primaryMetric'].get('scoreError')
+              error = f"± {err:.3f}" if err is not None else ''
               unit = b['primaryMetric']['scoreUnit']
-              print(f\"{name:<40} {mode:<6} {score:>10} {error:>10} {unit}\")
-          " >> $GITHUB_STEP_SUMMARY
+              print(f"{name:<40} {mode:<6} {score:>10} {error:>10} {unit}")
+          PY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Codec Benchmarks" >> $GITHUB_STEP_SUMMARY
