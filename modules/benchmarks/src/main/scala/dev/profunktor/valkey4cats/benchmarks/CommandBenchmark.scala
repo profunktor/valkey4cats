@@ -88,7 +88,7 @@ class CommandBenchmark:
   @Benchmark
   def saddSmembers(): Unit =
     val key = s"bench:set:${invocationCount.getAndIncrement()}"
-    (valkey.sadd(key, "a", "b", "c") *>
-      valkey.smembers(key) *>
-      valkey.del(key)).void
+    (valkey.sadd(key, "a", "b", "c").map(unwrap) *>
+      valkey.smembers(key).map(unwrap) *>
+      valkey.del(key).map(unwrap)).void
       .unsafeRunSync()
