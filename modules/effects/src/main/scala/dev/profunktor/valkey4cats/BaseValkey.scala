@@ -56,15 +56,6 @@ import dev.profunktor.valkey4cats.tx.TxRunner
 
 import scala.jdk.CollectionConverters.*
 
-/** Base implementation for Valkey commands
-  *
-  * Supports both standalone and cluster clients through the ValkeyConnection ADT
-  *
-  * @param connection Standalone or cluster connection
-  * @param keyCodec Codec for encoding/decoding keys
-  * @param valueCodec Codec for encoding/decoding values
-  * @param tx Transaction runner (stub for Phase 1)
-  */
 private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
     protected val connection: ValkeyConnection,
     protected val keyCodec: Codec[K],
@@ -73,11 +64,9 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
 )(implicit F: Async[F])
     extends ValkeyCommands[F, K, V] {
 
-  /** Get capabilities from MkValkey */
   private implicit val futureLift: FutureLift[F] = MkValkey[F].futureLift
   private implicit val logger: Log[F] = MkValkey[F].log
 
-  /** Get the underlying Glide BaseClient (works for both standalone and cluster) */
   private val baseClient: BaseClient = connection.baseClient
 
   private def optDecodeV(gs: glide.api.models.GlideString): Option[V] =
@@ -86,9 +75,6 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
   private def optDecodeK(gs: glide.api.models.GlideString): Option[K] =
     Option(gs).map(keyCodec.decode)
 
-  /** Execute a command, catching domain errors into ValkeyResponse.Err
-    * and letting infrastructure errors propagate in F.
-    */
   private def exec[A](cmd: String)(fa: F[A]): F[ValkeyResponse[A]] =
     fa.map(ValkeyResponse.ok).handleErrorWith {
       case e: RequestException =>
@@ -106,9 +92,6 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
           Async[F].raiseError(e)
     }
 
-  /** Execute a server command that exists on both GlideClient and GlideClusterClient
-    * but not on BaseClient, by dispatching through the connection ADT.
-    */
   private def serverCmd[A](cmd: String)(
       standalone: glide.api.GlideClient => F[A],
       cluster: glide.api.GlideClusterClient => F[A]
@@ -119,6 +102,29 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         case ValkeyConnection.Clustered(c)  => cluster(c.underlying)
       }
     }
+
+  private def buildGlideMap(
+      keysAndIds: Map[K, String]
+  ): java.util.LinkedHashMap[glide.api.models.GlideString, glide.api.models.GlideString] = {
+    val map = new java.util.LinkedHashMap[glide.api.models.GlideString, glide.api.models.GlideString]()
+    keysAndIds.foreach { case (k, id) =>
+      map.put(keyCodec.encode(k), glide.api.models.GlideString.of(id))
+    }
+    map
+  }
+
+  private def geoMembersMap(
+      members: Map[V, GeoPosition]
+  ): java.util.HashMap[glide.api.models.GlideString, glide.api.models.commands.geospatial.GeospatialData] = {
+    val map = new java.util.HashMap[glide.api.models.GlideString, glide.api.models.commands.geospatial.GeospatialData]()
+    members.foreach { case (member, pos) =>
+      map.put(valueCodec.encode(member), pos.toGlide)
+    }
+    map
+  }
+
+  private val emptyHashFieldExpOptions: glide.api.models.commands.HashFieldExpirationConditionOptions =
+    glide.api.models.commands.HashFieldExpirationConditionOptions.builder().build()
 
   // ==================== String Commands ====================
 
@@ -190,12 +196,11 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
     if (keyValues.isEmpty) Async[F].pure(ValkeyResponse.ok(()))
     else
       exec("MSET") {
-        val javaMap = keyValues.map { case (k, v) =>
-          new String(keyCodec.encode(k).getBytes()) -> new String(
-            valueCodec.encode(v).getBytes()
-          )
-        }.asJava
-        baseClient.mset(javaMap).futureLift.void
+        val map = new java.util.HashMap[glide.api.models.GlideString, glide.api.models.GlideString]()
+        keyValues.foreach { case (k, v) =>
+          map.put(keyCodec.encode(k), valueCodec.encode(v))
+        }
+        baseClient.msetBinary(map).futureLift.void
       }
   }
 
@@ -721,7 +726,8 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
 
   override def clusterScan(
       cursor: ClusterScanCursor
-  ): F[ValkeyResponse[ClusterScanResult[List[K]]]] =
+  ): F[ValkeyResponse[ClusterScanResult[List[K]]]] = {
+    val ClusterScanCursor.Wrapped(glideCursor) = cursor: @unchecked
     serverCmd("SCAN (cluster)")(
       _ =>
         Async[F].raiseError(
@@ -729,18 +735,16 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
             "clusterScan is only supported in cluster mode; use scan for standalone"
           )
         ),
-      c =>
-        c.scanBinary(
-          cursor.asInstanceOf[ClusterScanCursor.Wrapped].underlying
-        ).futureLift
-          .map(parseClusterScanResult)
+      _.scanBinary(glideCursor).futureLift.map(parseClusterScanResult)
     )
+  }
 
   override def clusterScan(
       cursor: ClusterScanCursor,
       matchPattern: String,
       count: Long
   ): F[ValkeyResponse[ClusterScanResult[List[K]]]] = {
+    val ClusterScanCursor.Wrapped(glideCursor) = cursor: @unchecked
     val opts = glide.api.models.commands.scan.ScanOptions
       .builder()
       .matchPattern(matchPattern)
@@ -754,12 +758,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
             "clusterScan is only supported in cluster mode; use scan for standalone"
           )
         ),
-      c =>
-        c.scanBinary(
-          cursor.asInstanceOf[ClusterScanCursor.Wrapped].underlying,
-          opts
-        ).futureLift
-          .map(parseClusterScanResult)
+      _.scanBinary(glideCursor, opts).futureLift.map(parseClusterScanResult)
     )
   }
 
@@ -940,16 +939,12 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         .map { result =>
           val nextCursor =
             result(0).asInstanceOf[glide.api.models.GlideString].getString
-          val data =
-            result(1)
-              .asInstanceOf[Array[Object]]
-              .map(_.asInstanceOf[glide.api.models.GlideString])
-          val pairs = data
-            .grouped(2)
-            .collect { case Array(f, v) =>
-              (keyCodec.decode(f), valueCodec.decode(v))
-            }
-            .toList
+          val data = result(1).asInstanceOf[Array[Object]]
+          val pairs = (0 until data.length by 2).map { i =>
+            val f = data(i).asInstanceOf[glide.api.models.GlideString]
+            val v = data(i + 1).asInstanceOf[glide.api.models.GlideString]
+            (keyCodec.decode(f), valueCodec.decode(v))
+          }.toList
           ScanResult(nextCursor, pairs)
         }
     }
@@ -975,9 +970,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
           keyCodec.encode(key),
           seconds,
           fields.map(keyCodec.encode).toArray,
-          glide.api.models.commands.HashFieldExpirationConditionOptions
-            .builder()
-            .build()
+          emptyHashFieldExpOptions
         )
         .futureLift
         .map(_.toList.map(_.longValue()))
@@ -1012,9 +1005,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
           keyCodec.encode(key),
           milliseconds,
           fields.map(keyCodec.encode).toArray,
-          glide.api.models.commands.HashFieldExpirationConditionOptions
-            .builder()
-            .build()
+          emptyHashFieldExpOptions
         )
         .futureLift
         .map(_.toList.map(_.longValue()))
@@ -1049,9 +1040,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
           keyCodec.encode(key),
           unixSeconds,
           fields.map(keyCodec.encode).toArray,
-          glide.api.models.commands.HashFieldExpirationConditionOptions
-            .builder()
-            .build()
+          emptyHashFieldExpOptions
         )
         .futureLift
         .map(_.toList.map(_.longValue()))
@@ -1086,9 +1075,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
           keyCodec.encode(key),
           unixMilliseconds,
           fields.map(keyCodec.encode).toArray,
-          glide.api.models.commands.HashFieldExpirationConditionOptions
-            .builder()
-            .build()
+          emptyHashFieldExpOptions
         )
         .futureLift
         .map(_.toList.map(_.longValue()))
@@ -2444,16 +2431,12 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         .map { result =>
           val nextCursor =
             result(0).asInstanceOf[glide.api.models.GlideString].getString
-          val data =
-            result(1)
-              .asInstanceOf[Array[Object]]
-              .map(_.asInstanceOf[glide.api.models.GlideString])
-          val pairs = data
-            .grouped(2)
-            .collect { case Array(member, score) =>
-              (valueCodec.decode(member), score.getString.toDouble)
-            }
-            .toList
+          val data = result(1).asInstanceOf[Array[Object]]
+          val pairs = (0 until data.length by 2).map { i =>
+            val member = data(i).asInstanceOf[glide.api.models.GlideString]
+            val score = data(i + 1).asInstanceOf[glide.api.models.GlideString]
+            (valueCodec.decode(member), score.getString.toDouble)
+          }.toList
           ScanResult(nextCursor, pairs)
         }
     }
@@ -2717,16 +2700,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       members: Map[V, GeoPosition]
   ): F[ValkeyResponse[Long]] =
     exec(s"GEOADD $key") {
-      val keyGS = keyCodec.encode(key)
-      val javaMap =
-        new java.util.HashMap[
-          glide.api.models.GlideString,
-          glide.api.models.commands.geospatial.GeospatialData
-        ]()
-      members.foreach { case (member, pos) =>
-        javaMap.put(valueCodec.encode(member), pos.toGlide)
-      }
-      baseClient.geoadd(keyGS, javaMap).futureLift.map(_.longValue())
+      baseClient.geoadd(keyCodec.encode(key), geoMembersMap(members)).futureLift.map(_.longValue())
     }
 
   override def geoAdd(
@@ -2735,17 +2709,8 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       options: GeoAddOptions
   ): F[ValkeyResponse[Long]] =
     exec(s"GEOADD $key") {
-      val keyGS = keyCodec.encode(key)
-      val javaMap =
-        new java.util.HashMap[
-          glide.api.models.GlideString,
-          glide.api.models.commands.geospatial.GeospatialData
-        ]()
-      members.foreach { case (member, pos) =>
-        javaMap.put(valueCodec.encode(member), pos.toGlide)
-      }
       baseClient
-        .geoadd(keyGS, javaMap, options.toGlide)
+        .geoadd(keyCodec.encode(key), geoMembersMap(members), options.toGlide)
         .futureLift
         .map(_.longValue())
     }
@@ -3315,16 +3280,8 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       keysAndIds: Map[K, String]
   ): F[ValkeyResponse[Option[StreamReadResult]]] =
     exec("XREAD") {
-      val glideMap =
-        new java.util.LinkedHashMap[
-          glide.api.models.GlideString,
-          glide.api.models.GlideString
-        ]()
-      keysAndIds.foreach { case (k, id) =>
-        glideMap.put(keyCodec.encode(k), glide.api.models.GlideString.of(id))
-      }
       baseClient
-        .xreadBinary(glideMap)
+        .xreadBinary(buildGlideMap(keysAndIds))
         .futureLift
         .map(parseXreadResult)
     }
@@ -3335,21 +3292,13 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       block: Long
   ): F[ValkeyResponse[Option[StreamReadResult]]] =
     exec("XREAD") {
-      val glideMap =
-        new java.util.LinkedHashMap[
-          glide.api.models.GlideString,
-          glide.api.models.GlideString
-        ]()
-      keysAndIds.foreach { case (k, id) =>
-        glideMap.put(keyCodec.encode(k), glide.api.models.GlideString.of(id))
-      }
       val opts = glide.api.models.commands.stream.StreamReadOptions
         .builder()
         .count(count)
         .block(block)
         .build()
       baseClient
-        .xreadBinary(glideMap, opts)
+        .xreadBinary(buildGlideMap(keysAndIds), opts)
         .futureLift
         .map(parseXreadResult)
     }
@@ -3360,16 +3309,8 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       keysAndIds: Map[K, String]
   ): F[ValkeyResponse[Option[StreamReadResult]]] =
     exec("XREADGROUP") {
-      val glideMap =
-        new java.util.LinkedHashMap[
-          glide.api.models.GlideString,
-          glide.api.models.GlideString
-        ]()
-      keysAndIds.foreach { case (k, id) =>
-        glideMap.put(keyCodec.encode(k), glide.api.models.GlideString.of(id))
-      }
       baseClient
-        .xreadgroup(glideMap, keyCodec.encode(group), keyCodec.encode(consumer))
+        .xreadgroup(buildGlideMap(keysAndIds), keyCodec.encode(group), keyCodec.encode(consumer))
         .futureLift
         .map(parseXreadResult)
     }
@@ -3392,14 +3333,6 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       noAck: Boolean
   ): F[ValkeyResponse[Option[StreamReadResult]]] =
     exec("XREADGROUP") {
-      val glideMap =
-        new java.util.LinkedHashMap[
-          glide.api.models.GlideString,
-          glide.api.models.GlideString
-        ]()
-      keysAndIds.foreach { case (k, id) =>
-        glideMap.put(keyCodec.encode(k), glide.api.models.GlideString.of(id))
-      }
       val opts = {
         val b = glide.api.models.commands.stream.StreamReadGroupOptions
           .builder()
@@ -3416,7 +3349,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
       }.asInstanceOf[glide.api.models.commands.stream.StreamReadGroupOptions]
       baseClient
         .xreadgroup(
-          glideMap,
+          buildGlideMap(keysAndIds),
           keyCodec.encode(group),
           keyCodec.encode(consumer),
           opts
