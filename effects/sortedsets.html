@@ -1,0 +1,315 @@
+<!DOCTYPE html><html><head><title>Valkey4Cats: Sorted Sets</title><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="ProfunKtor" /><meta name="description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="og:image" content="/img/poster.png" /><meta name="image" property="og:image" content="/img/poster.png" /><meta name="og:title" content="Valkey4Cats: Sorted Sets" /><meta name="title" property="og:title" content="Valkey4Cats: Sorted Sets" /><meta name="og:site_name" content="Valkey4Cats" /><meta name="og:url" content="https://valkey.profunktor.dev" /><meta name="og:type" content="website" /><meta name="og:description" content="Valkey client for Cats Effect &amp; Glide" /><link rel="icon" type="image/png" href="/img/favicon.png" /><meta name="twitter:title" content="Valkey4Cats: Sorted Sets" /><meta name="twitter:image" content="https://valkey.profunktor.dev/img/poster.png" /><meta name="twitter:description" content="Valkey client for Cats Effect &amp; Glide" /><meta name="twitter:card" content="summary_large_image" /><link rel="icon" type="image/png" sizes="32x32" href="/img/valkey-favicon.png" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/highlight/styles/atom-one-light.css" /><link rel="stylesheet" href="/css/light-style.css" /><link rel="stylesheet" href="/css/custom.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><div id="sidebar-brand"><a href="/" class="brand"><div class="brand-wrapper"></div><span>Valkey4Cats</span></a><button id="main-toggle" class="sidebar-toggle"><span class="close"></span></button></div><div class="sidebar-nav"> <div class="sidebar-nav-item  "><a href="/quickstart.html" title="Quick Start" class="">Quick Start</a></div> <div class="sidebar-nav-item  "><a href="/client.html" title="Client" class="">Client</a></div> <div class="sidebar-nav-item  "><a href="/codecs.html" title="Codecs" class="">Codecs</a></div> <div class="sidebar-nav-item  "><a href="/error-handling.html" title="Error Handling" class="">Error Handling</a></div> <div class="sidebar-nav-item  open"><a href="/effects/" title="Effects API" class="drop-nested">Effects API</a><i class="fa fa-angle-right"></i><div class="sub-section"> <a href="/effects/strings.html" title="Strings" class="">Strings</a> <a href="/effects/hashes.html" title="Hashes" class="">Hashes</a> <a href="/effects/keys.html" title="Keys" class="">Keys</a> <a href="/effects/lists.html" title="Lists" class="">Lists</a> <a href="/effects/sets.html" title="Sets" class="">Sets</a> <a href="/effects/sortedsets.html" title="Sorted Sets" class="active">Sorted Sets</a> <a href="/effects/streams.html" title="Streams" class="">Streams</a> <a href="/effects/geo.html" title="Geo" class="">Geo</a> <a href="/effects/bitmaps.html" title="Bitmaps" class="">Bitmaps</a> <a href="/effects/hyperloglog.html" title="HyperLogLog" class="">HyperLogLog</a> <a href="/effects/connection.html" title="Connection" class="">Connection</a> <a href="/effects/server.html" title="Server" class="">Server</a> <a href="/effects/scripting.html" title="Scripting" class="">Scripting</a></div></div></div></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="search-nav"><div id="search-dropdown"><label><i class="fa fa-search"></i>Search</label><input id="search-bar" type="text" placeholder="Enter keywords here..." onclick="displayToggleSearch(event)" /><ul id="search-dropdown-content" class="dropdown dropdown-content"></ul></div></li><li id="gh-eyes-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-eye"></i><span>Watchers<span id="eyes" class="label label-default">--</span></span></a></li><li id="gh-stars-item" class="hidden-xs to-uppercase"><a href="https://github.com/profunktor/valkey4cats" target="_blank" rel="noopener noreferrer"><i class="fa fa-star-o"></i><span>Stars<span id="stars" class="label label-default">--</span></span></a></li></ul></div></div></div></div><div id="content" data-github-owner="profunktor" data-github-repo="valkey4cats"><div class="content-wrapper"><section><h1 id="sorted-sets-api">Sorted Sets API</h1>
+
+<p>Purely functional interface for the <a href="https://valkey.io/commands/#sorted-set">Sorted Sets API</a>.</p>
+
+<p>Sorted sets are collections of unique string elements where each element has an associated score. Elements are ordered by score.</p>
+
+<h3 id="sorted-set-commands-usage">Sorted Set Commands usage</h3>
+
+<p>Once you have acquired a connection you can start using it:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.effect.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.Valkey</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.effect.Log</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.model.ValkeyResponse.</span><span class="o">{</span><span class="nc">Ok</span><span class="o">,</span> <span class="nc">Err</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.arguments.ScoreBoundary</span>
+
+<span class="n">given</span> <span class="nc">Log</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Log</span><span class="o">.</span><span class="py">Stdout</span><span class="o">.</span><span class="py">instance</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span>
+
+<span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">utf8</span><span class="o">(</span><span class="s">"valkey://localhost:6379"</span><span class="o">).</span><span class="py">use</span> <span class="o">{</span> <span class="n">valkey</span> <span class="k">=&gt;</span>
+  <span class="k">for</span>
+    <span class="c1">// ZADD</span>
+    <span class="n">added</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zadd</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="nc">Map</span><span class="o">(</span>
+      <span class="s">"alice"</span> <span class="o">-&gt;</span> <span class="mf">100.0</span><span class="o">,</span>
+      <span class="s">"bob"</span>   <span class="o">-&gt;</span> <span class="mf">85.0</span><span class="o">,</span>
+      <span class="s">"carol"</span> <span class="o">-&gt;</span> <span class="mf">92.0</span>
+    <span class="o">))</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Added: ${added.toOption}"</span><span class="o">)</span> <span class="c1">// Some(3)</span>
+
+    <span class="c1">// ZSCORE</span>
+    <span class="n">score</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zscore</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="s">"alice"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Alice's score: ${score.toOption}"</span><span class="o">)</span> <span class="c1">// Some(Some(100.0))</span>
+
+    <span class="c1">// ZRANK (ascending)</span>
+    <span class="n">rank</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zrank</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="s">"bob"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Bob's rank: ${rank.toOption}"</span><span class="o">)</span> <span class="c1">// Some(Some(0)) - lowest score</span>
+
+    <span class="c1">// ZRANGE (by index)</span>
+    <span class="n">top</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zrange</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"All (ascending): ${top.toOption}"</span><span class="o">)</span>
+
+    <span class="c1">// ZRANGE with scores</span>
+    <span class="n">withScores</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zrangeWithScores</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"With scores: ${withScores.toOption}"</span><span class="o">)</span>
+
+    <span class="c1">// ZINCRBY</span>
+    <span class="n">newScore</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zincrby</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="mf">20.0</span><span class="o">,</span> <span class="s">"bob"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Bob's new score: ${newScore.toOption}"</span><span class="o">)</span> <span class="c1">// Some(105.0)</span>
+
+    <span class="c1">// ZCARD</span>
+    <span class="n">count</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zcard</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Members: ${count.toOption}"</span><span class="o">)</span> <span class="c1">// Some(3)</span>
+
+    <span class="c1">// ZCOUNT - count members in score range</span>
+    <span class="n">inRange</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zcount</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="mf">90.0</span><span class="o">,</span> <span class="mf">110.0</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Scores 90-110: ${inRange.toOption}"</span><span class="o">)</span> <span class="c1">// Some(2)</span>
+
+    <span class="c1">// ZPOPMIN / ZPOPMAX</span>
+    <span class="n">lowest</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zpopmin</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Lowest: ${lowest.toOption}"</span><span class="o">)</span> <span class="c1">// Some(Some(("carol", 92.0)))</span>
+
+    <span class="c1">// ZREM</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zrem</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span> <span class="s">"alice"</span><span class="o">)</span>
+
+    <span class="c1">// ZREMRANGEBYSCORE</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zremrangebyscore</span><span class="o">(</span><span class="s">"leaderboard"</span><span class="o">,</span>
+      <span class="nv">ScoreBoundary</span><span class="o">.</span><span class="py">Score</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span>
+      <span class="nv">ScoreBoundary</span><span class="o">.</span><span class="py">Score</span><span class="o">(</span><span class="mi">50</span><span class="o">)</span>
+    <span class="o">)</span>
+
+    <span class="c1">// Set operations: ZUNION, ZINTER, ZDIFF</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zadd</span><span class="o">(</span><span class="s">"z1"</span><span class="o">,</span> <span class="nc">Map</span><span class="o">(</span><span class="s">"a"</span> <span class="o">-&gt;</span> <span class="mf">1.0</span><span class="o">,</span> <span class="s">"b"</span> <span class="o">-&gt;</span> <span class="mf">2.0</span><span class="o">))</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zadd</span><span class="o">(</span><span class="s">"z2"</span><span class="o">,</span> <span class="nc">Map</span><span class="o">(</span><span class="s">"b"</span> <span class="o">-&gt;</span> <span class="mf">3.0</span><span class="o">,</span> <span class="s">"c"</span> <span class="o">-&gt;</span> <span class="mf">4.0</span><span class="o">))</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zunionstore</span><span class="o">(</span><span class="s">"zunion_result"</span><span class="o">,</span> <span class="s">"z1"</span><span class="o">,</span> <span class="s">"z2"</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zinterstore</span><span class="o">(</span><span class="s">"zinter_result"</span><span class="o">,</span> <span class="s">"z1"</span><span class="o">,</span> <span class="s">"z2"</span><span class="o">)</span>
+  <span class="nf">yield</span> <span class="o">()</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="blocking-operations">Blocking operations</h3>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">cats.effect.</span><span class="o">*</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.Valkey</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.effect.Log</span>
+<span class="k">import</span> <span class="nn">dev.profunktor.valkey4cats.arguments.ScoreFilter</span>
+
+<span class="n">given</span> <span class="nc">Log</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span> <span class="k">=</span> <span class="nv">Log</span><span class="o">.</span><span class="py">Stdout</span><span class="o">.</span><span class="py">instance</span><span class="o">[</span><span class="kt">IO</span><span class="o">]</span>
+
+<span class="nc">Valkey</span><span class="o">[</span><span class="kt">IO</span><span class="o">].</span><span class="py">utf8</span><span class="o">(</span><span class="s">"valkey://localhost:6379"</span><span class="o">).</span><span class="py">use</span> <span class="o">{</span> <span class="n">valkey</span> <span class="k">=&gt;</span>
+  <span class="k">for</span>
+    <span class="c1">// BZPOPMIN - blocking pop of lowest score (5 second timeout)</span>
+    <span class="n">result</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">bzpopmin</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="s">"priority_queue"</span><span class="o">),</span> <span class="mf">5.0</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">result</span><span class="o">.</span><span class="py">toOption</span><span class="o">.</span><span class="py">flatten</span> <span class="k">match</span>
+      <span class="k">case</span> <span class="nc">Some</span><span class="o">((</span><span class="n">key</span><span class="o">,</span> <span class="n">member</span><span class="o">,</span> <span class="n">score</span><span class="o">))</span> <span class="k">=&gt;</span>
+        <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Got $member (score=$score) from $key"</span><span class="o">)</span>
+      <span class="k">case</span> <span class="nc">None</span> <span class="k">=&gt;</span>
+        <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="s">"Timeout"</span><span class="o">)</span>
+
+    <span class="c1">// ZMPOP - pop from first non-empty sorted set</span>
+    <span class="n">popped</span> <span class="k">&lt;-</span> <span class="nv">valkey</span><span class="o">.</span><span class="py">zmpop</span><span class="o">(</span><span class="nc">List</span><span class="o">(</span><span class="s">"q1"</span><span class="o">,</span> <span class="s">"q2"</span><span class="o">),</span> <span class="nv">ScoreFilter</span><span class="o">.</span><span class="py">Min</span><span class="o">)</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="nv">IO</span><span class="o">.</span><span class="py">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Popped: ${popped.toOption}"</span><span class="o">)</span>
+  <span class="nf">yield</span> <span class="o">()</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="available-commands">Available commands</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Method</th>
+      <th>Return type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ZADD</td>
+      <td><code class="language-plaintext highlighter-rouge">zadd(key, membersScores)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZADD (opts)</td>
+      <td><code class="language-plaintext highlighter-rouge">zadd(key, membersScores, options)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZADD INCR</td>
+      <td><code class="language-plaintext highlighter-rouge">zaddIncr(key, member, score)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[Double]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZREM</td>
+      <td><code class="language-plaintext highlighter-rouge">zrem(key, members*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANGE</td>
+      <td><code class="language-plaintext highlighter-rouge">zrange(key, start, stop)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANGE WITHSCORES</td>
+      <td><code class="language-plaintext highlighter-rouge">zrangeWithScores(key, start, stop)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[(V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZSCORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zscore(key, member)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[Double]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZMSCORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zmscore(key, members*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[Option[Double]]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZCARD</td>
+      <td><code class="language-plaintext highlighter-rouge">zcard(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANK</td>
+      <td><code class="language-plaintext highlighter-rouge">zrank(key, member)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[Long]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZREVRANK</td>
+      <td><code class="language-plaintext highlighter-rouge">zrevrank(key, member)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[Long]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZINCRBY</td>
+      <td><code class="language-plaintext highlighter-rouge">zincrby(key, increment, member)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Double]]</code></td>
+    </tr>
+    <tr>
+      <td>ZCOUNT</td>
+      <td><code class="language-plaintext highlighter-rouge">zcount(key, min, max)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZPOPMIN</td>
+      <td><code class="language-plaintext highlighter-rouge">zpopmin(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[(V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZPOPMIN (count)</td>
+      <td><code class="language-plaintext highlighter-rouge">zpopminCount(key, count)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[(V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZPOPMAX</td>
+      <td><code class="language-plaintext highlighter-rouge">zpopmax(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[(V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZPOPMAX (count)</td>
+      <td><code class="language-plaintext highlighter-rouge">zpopmaxCount(key, count)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[(V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANDMEMBER</td>
+      <td><code class="language-plaintext highlighter-rouge">zrandmember(key)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANDMEMBER (count)</td>
+      <td><code class="language-plaintext highlighter-rouge">zrandmemberCount(key, count)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANDMEMBER (scores)</td>
+      <td><code class="language-plaintext highlighter-rouge">zrandmemberWithScores(key, count)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[(V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZREMRANGEBYRANK</td>
+      <td><code class="language-plaintext highlighter-rouge">zremrangebyrank(key, start, stop)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZREMRANGEBYSCORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zremrangebyscore(key, min, max)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZDIFF</td>
+      <td><code class="language-plaintext highlighter-rouge">zdiff(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZDIFFSTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zdiffstore(dest, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZUNION</td>
+      <td><code class="language-plaintext highlighter-rouge">zunion(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZUNIONSTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zunionstore(dest, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZINTER</td>
+      <td><code class="language-plaintext highlighter-rouge">zinter(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[List[V]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZINTERSTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zinterstore(dest, keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZINTERCARD</td>
+      <td><code class="language-plaintext highlighter-rouge">zintercard(keys*)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZLEXCOUNT</td>
+      <td><code class="language-plaintext highlighter-rouge">zlexcount(key, min, max)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZRANGESTORE</td>
+      <td><code class="language-plaintext highlighter-rouge">zrangestore(dest, src, rangeQuery)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Long]]</code></td>
+    </tr>
+    <tr>
+      <td>ZMPOP</td>
+      <td><code class="language-plaintext highlighter-rouge">zmpop(keys, filter)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[(K, List[(V, Double)])]]]</code></td>
+    </tr>
+    <tr>
+      <td>BZPOPMIN</td>
+      <td><code class="language-plaintext highlighter-rouge">bzpopmin(keys, timeout)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[(K, V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>BZPOPMAX</td>
+      <td><code class="language-plaintext highlighter-rouge">bzpopmax(keys, timeout)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[(K, V, Double)]]]</code></td>
+    </tr>
+    <tr>
+      <td>BZMPOP</td>
+      <td><code class="language-plaintext highlighter-rouge">bzmpop(keys, filter, timeout)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[Option[(K, List[(V, Double)])]]]</code></td>
+    </tr>
+    <tr>
+      <td>ZSCAN</td>
+      <td><code class="language-plaintext highlighter-rouge">zscan(key, cursor)</code></td>
+      <td><code class="language-plaintext highlighter-rouge">F[ValkeyResponse[ScanResult[List[(V, Double)]]]]</code></td>
+    </tr>
+  </tbody>
+</table>
+</section></div></div></div></div><script src="/highlight/highlight.pack.js"></script><script src="/lunr/lunr.js"></script><script>
+// For all code blocks, copy the language from the containing div
+// to the inner code tag (where hljs expects it to be)
+const langPrefix = 'language-';
+document.querySelectorAll(`div[class^='${langPrefix}']`).forEach(function(div) {
+  div.classList.forEach(function(cssClass) {
+    if (cssClass.startsWith(langPrefix)) {
+      const lang = cssClass.substring(langPrefix.length);
+      div.querySelectorAll('pre code').forEach(function(code) {
+        code.classList.add(lang);
+      });
+    }
+  });
+});
+
+hljs.configure({languages:['scala','java','bash']});
+hljs.initHighlightingOnLoad();
+      </script><script>console.info('\x57\x65\x62\x73\x69\x74\x65\x20\x62\x75\x69\x6c\x74\x20\x77\x69\x74\x68\x3a\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x5f\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x5f\x20\x5f\x5f\x0a\x20\x20\x20\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x5f\x20\x20\x2f\x20\x2f\x5f\x20\x20\x20\x20\x20\x20\x5f\x5f\x5f\x5f\x20\x5f\x5f\x5f\x20\x20\x28\x5f\x29\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x28\x5f\x29\x20\x2f\x5f\x5f\x5f\x5f\x20\x20\x5f\x5f\x5f\x5f\x5f\x0a\x20\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x60\x5f\x5f\x20\x5c\x2f\x20\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x5f\x2f\x20\x5f\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x20\x2f\x20\x5f\x5f\x2f\x20\x5f\x20\x5c\x2f\x20\x5f\x5f\x5f\x2f\x0a\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x5f\x2f\x20\x2f\x20\x2f\x5f\x2f\x5f\x5f\x5f\x5f\x5f\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x20\x2f\x5f\x5f\x2f\x20\x2f\x20\x20\x2f\x20\x2f\x5f\x2f\x20\x28\x5f\x5f\x20\x20\x29\x20\x2f\x20\x2f\x5f\x2f\x20\x20\x5f\x5f\x28\x5f\x5f\x20\x20\x29\x0a\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2e\x5f\x5f\x5f\x2f\x5c\x5f\x5f\x2f\x20\x20\x20\x20\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x20\x2f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x2f\x20\x20\x20\x5c\x5f\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x5f\x2f\x5c\x5f\x5f\x2f\x5c\x5f\x5f\x5f\x2f\x5f\x5f\x5f\x5f\x2f\x0a\x0a\x68\x74\x74\x70\x73\x3a\x2f\x2f\x34\x37\x64\x65\x67\x2e\x67\x69\x74\x68\x75\x62\x2e\x69\x6f\x2f\x73\x62\x74\x2d\x6d\x69\x63\x72\x6f\x73\x69\x74\x65\x73')</script><script src="/js/search.js"></script><script src="/js/docs.js"></script></body></html>
