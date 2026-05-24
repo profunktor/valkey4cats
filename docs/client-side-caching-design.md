@@ -10,7 +10,7 @@ Every `GET`, `HGETALL`, or `SMEMBERS` call makes a network round-trip even when 
 glide.api.models.configuration.ClientSideCache
   .builder()
     .maxCacheKb(long)                    // required, must be > 0
-    .entryTtlMs(long)                    // required, must be > 0 (0 = disabled)
+    .entryTtlMs(long)                    // required, must be > 0
     .evictionPolicy(EvictionPolicy)      // LRU (default) | LFU
     .enableMetrics(boolean)              // default false
     .build()                             // side effect: AtomicLong increment for cacheId
@@ -95,14 +95,14 @@ Wire in each `toGlide`:
 common.clientSideCache.foreach(c => builder.clientSideCache(c.toGlide))
 ```
 
-### CacheCommands Algebra
+### CacheMetrics Algebra
 
 Metrics return plain `F[A]` — these are local Rust-layer lookups, not Valkey commands, and cannot produce a `ValkeyError`.
 
 ```scala
 package dev.profunktor.valkey4cats.algebra
 
-trait CacheCommands[F[_]] {
+trait CacheMetrics[F[_]] {
   def cacheHitRate: F[Double]
   def cacheMissRate: F[Double]
   def cacheEntryCount: F[Long]
@@ -151,9 +151,9 @@ val cluster = ValkeyClusterConfig.builder.withClientSideCache(shared)
 | `modules/core/.../model/CommonConfig.scala` | Add `clientSideCache` field + builder methods |
 | `modules/core/.../model/ValkeyClientConfig.scala` | Delegate `withClientSideCache`, wire in `toGlide` |
 | `modules/core/.../model/ValkeyClusterConfig.scala` | Same |
-| `modules/effects/.../algebra/CacheCommands.scala` | New — metrics trait |
-| `modules/effects/.../BaseValkey.scala` | Implement `CacheCommands` |
-| `modules/effects/.../ValkeyCommands.scala` | Extend `CacheCommands` |
+| `modules/effects/.../algebra/CacheMetrics.scala` | New — metrics trait |
+| `modules/effects/.../BaseValkey.scala` | Implement `CacheMetrics` |
+| `modules/effects/.../ValkeyCommands.scala` | Extend `CacheMetrics` |
 | `modules/core/src/test/.../ClientSideCacheConfigSuite.scala` | Validation unit tests |
 
 ## Verification

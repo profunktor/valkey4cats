@@ -27,6 +27,7 @@ sealed abstract class ValkeyClientConfig {
   def libName: Option[String] = common.libName
   def lazyConnect: Option[Boolean] = common.lazyConnect
   def clientAZ: Option[String] = common.clientAZ
+  def clientSideCache: Option[ClientSideCacheConfig] = common.clientSideCache
 
   private[model] def copy(
       common: CommonConfig = this.common,
