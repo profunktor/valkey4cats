@@ -51,7 +51,7 @@ sealed trait ValkeyResponse[+A] {
 
   /** Lift into an effect F, raising [[ValkeyResponse.ValkeyDomainError]] for errors. */
   def liftTo[F[_], B >: A](implicit F: ApplicativeThrow[F]): F[B] = this match {
-    case ValkeyResponse.Ok(value) => F.pure(value)
+    case ValkeyResponse.Ok(value)  => F.pure(value)
     case ValkeyResponse.Err(error) =>
       F.raiseError(
         new ValkeyResponse.ValkeyDomainError(error)

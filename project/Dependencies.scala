@@ -30,8 +30,10 @@ object Dependencies {
 
   // Test dependencies
   val munit = "org.scalameta" %% "munit" % Versions.munit % Test
-  val munitCatsEffect = "org.typelevel" %% "munit-cats-effect" % Versions.munitCatsEffect % Test
-  val testcontainers = "org.testcontainers" % "testcontainers" % Versions.testcontainers % Test
+  val munitCatsEffect =
+    "org.typelevel" %% "munit-cats-effect" % Versions.munitCatsEffect % Test
+  val testcontainers =
+    "org.testcontainers" % "testcontainers" % Versions.testcontainers % Test
 
   // Dependency groups
   object Groups {
@@ -40,25 +42,25 @@ object Dependencies {
       catsCore,
       catsEffect,
       literally,
-      ip4s,
+      ip4s
     )
 
     val test = Seq(
       munit,
       munitCatsEffect,
-      testcontainers,
+      testcontainers
     )
 
     val effects = Seq(
-      catsEffect,
+      catsEffect
     )
 
     val log4cats = Seq(
-      log4catsCore,
+      log4catsCore
     )
 
     val examples = Seq(
-      catsEffect,
+      catsEffect
     )
   }
 }

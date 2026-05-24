@@ -37,7 +37,7 @@ sealed abstract class ValkeyUri {
   /** Convert to java.net.URI */
   def toURI: URI = {
     val auth = credentials match {
-      case Some(p: ServerCredentials.Password) => s":${p.password}@"
+      case Some(p: ServerCredentials.Password)          => s":${p.password}@"
       case Some(up: ServerCredentials.UsernamePassword) =>
         s"${up.username}:${up.password}@"
       case Some(_: ServerCredentials.IamAuth) =>
@@ -121,7 +121,7 @@ object ValkeyUri {
       case "valkeys" => Right(Valkeys)
       case "redis"   => Right(Redis)
       case "rediss"  => Right(Rediss)
-      case other =>
+      case other     =>
         Left(
           s"Invalid scheme '$other'. Must be one of: valkey, valkeys, redis, rediss"
         )
@@ -175,7 +175,7 @@ object ValkeyUri {
           case Some(id) =>
             DatabaseId(id) match {
               case Right(dbId) => dbId
-              case Left(msg) =>
+              case Left(msg)   =>
                 throw new IllegalArgumentException(
                   s"Invalid database in URI: $msg"
                 )

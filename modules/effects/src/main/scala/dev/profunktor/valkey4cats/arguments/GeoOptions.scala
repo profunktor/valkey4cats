@@ -47,7 +47,7 @@ case class GeoPosition(longitude: Double, latitude: Double) {
 /** Conditional mode for GEOADD command */
 sealed trait GeoAddCondition {
   def toGlide: ConditionalChange = this match {
-    case GeoAddCondition.OnlyIfExists => ConditionalChange.ONLY_IF_EXISTS
+    case GeoAddCondition.OnlyIfExists       => ConditionalChange.ONLY_IF_EXISTS
     case GeoAddCondition.OnlyIfDoesNotExist =>
       ConditionalChange.ONLY_IF_DOES_NOT_EXIST
   }

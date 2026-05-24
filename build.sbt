@@ -11,7 +11,12 @@ ThisBuild / mimaBaseVersion := "0.1.0"
 ThisBuild / organization := "dev.profunktor"
 ThisBuild / homepage := Some(url("https://valkey.profunktor.dev"))
 ThisBuild / developers := List(
-  Developer("yisraelU", "Yisrael Union", "ysrlunion@gmail.com", url("https://github.com/yisraelU"))
+  Developer(
+    "yisraelU",
+    "Yisrael Union",
+    "ysrlunion@gmail.com",
+    url("https://github.com/yisraelU")
+  )
 )
 Test / parallelExecution := false
 
@@ -26,7 +31,10 @@ promptTheme := PromptTheme(
 val commonSettings = Seq(
   organizationName := "Valkey client for Cats Effect & Glide",
   startYear := Some(2018),
-  licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+  licenses += (
+    "Apache-2.0",
+    url("https://www.apache.org/licenses/LICENSE-2.0.txt")
+  ),
   headerLicense := Some(HeaderLicense.ALv2("2018-2025", "ProfunKtor")),
   testFrameworks += new TestFramework("munit.Framework"),
   resolvers += "Apache public" at "https://repository.apache.org/content/groups/public/",
@@ -38,7 +46,10 @@ val commonSettings = Seq(
   autoAPIMappings := true,
   scalafmtOnCompile := true,
   scmInfo := Some(
-    ScmInfo(url("https://github.com/profunktor/valkey4cats"), "scm:git:git@github.com:profunktor/valkey4cats.git")
+    ScmInfo(
+      url("https://github.com/profunktor/valkey4cats"),
+      "scm:git:git@github.com:profunktor/valkey4cats.git"
+    )
   )
 )
 
@@ -53,12 +64,15 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "valkey4cats",
-    publish / skip := true,
+    publish / skip := true
   )
   .aggregate(core, effects, log4Cats, examples, microsite)
   .settings(
     ScalaUnidoc / siteSubdirName := "api",
-    addMappingsToSiteDir(ScalaUnidoc / packageDoc / mappings, ScalaUnidoc / siteSubdirName)
+    addMappingsToSiteDir(
+      ScalaUnidoc / packageDoc / mappings,
+      ScalaUnidoc / siteSubdirName
+    )
   )
   .enablePlugins(ScalaUnidocPlugin)
 
@@ -67,7 +81,7 @@ lazy val core = project
   .settings(commonSettings)
   .settings(
     name := "valkey4cats-core",
-    libraryDependencies ++= Dependencies.Groups.core ++ Dependencies.Groups.test,
+    libraryDependencies ++= Dependencies.Groups.core ++ Dependencies.Groups.test
   )
 
 lazy val effects = project
@@ -119,14 +133,14 @@ lazy val microsite = project
       """<p>Valkey4Cats is maintained by <a href="https://github.com/profunktor">ProfunKtor</a>. Licensed under Apache 2.0.</p>"""
     ),
     micrositePalette := Map(
-      "brand-primary"   -> "#6983ff",
+      "brand-primary" -> "#6983ff",
       "brand-secondary" -> "#1a2026",
-      "brand-danger"    -> "#e53e3e",
-      "gray-dark"       -> "#2d3748",
-      "gray"            -> "#4a5568",
-      "gray-light"      -> "#e2e8f0",
-      "gray-lighter"    -> "#f7fafc",
-      "white-color"     -> "#FFFFFF"
+      "brand-danger" -> "#e53e3e",
+      "gray-dark" -> "#2d3748",
+      "gray" -> "#4a5568",
+      "gray-light" -> "#e2e8f0",
+      "gray-lighter" -> "#f7fafc",
+      "white-color" -> "#FFFFFF"
     ),
     micrositeExtraMdFiles := Map(
       file("README.md") -> ExtraMdFileConfig(
@@ -147,7 +161,10 @@ lazy val microsite = project
   .dependsOn(effects, examples)
 
 // Convenience commands
-addCommandAlias("compileAll", ";core/compile ;effects/compile ;examples/compile")
+addCommandAlias(
+  "compileAll",
+  ";core/compile ;effects/compile ;examples/compile"
+)
 addCommandAlias("testAll", ";core/test ;effects/test")
 addCommandAlias("testAllQuick", ";core/testQuick ;effects/testQuick")
 addCommandAlias("buildSite", ";makeMicrosite")
