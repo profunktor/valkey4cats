@@ -53,7 +53,7 @@ object CacheEvictionPolicy {
 
 ### ClientSideCacheConfig
 
-Pure validated config value. The Glide `ClientSideCache` object (which has the AtomicLong side effect) is constructed later inside `toGlide`, which already executes within `Sync[F].delay` during client creation.
+Pure validated config value. The Glide `ClientSideCache` object (which has the AtomicLong side effect) is constructed via `toGlide` inside the effectful client acquisition path (`FutureLift[F].lift(...)`).
 
 ```scala
 package dev.profunktor.valkey4cats.model
@@ -84,7 +84,7 @@ object ClientSideCacheConfig {
 }
 ```
 
-Validation: `maxCacheKb > 0`, `entryTtl > 0`.
+Validation: `maxCacheKb > 0`, `entryTtl >= 1.millisecond` (sub-ms durations are rejected since Glide uses ms granularity).
 
 ### CommonConfig Integration
 

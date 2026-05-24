@@ -3592,7 +3592,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         }
     }
 
-  // ==================== Cache Commands ====================
+  // ==================== Cache Metrics ====================
 
   override def cacheHitRate: F[Double] =
     baseClient.getCacheHitRate().futureLift.map(_.doubleValue())

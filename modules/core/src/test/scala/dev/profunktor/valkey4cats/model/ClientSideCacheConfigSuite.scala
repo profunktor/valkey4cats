@@ -41,14 +41,14 @@ class ClientSideCacheConfigSuite extends FunSuite {
     assertEquals(result, Left("maxCacheKb must be positive"))
   }
 
-  test("entryTtl must be positive") {
+  test("entryTtl must be at least 1 millisecond") {
     val result = ClientSideCacheConfig(maxCacheKb = 1024, entryTtl = 0.seconds)
-    assertEquals(result, Left("entryTtl must be positive"))
+    assertEquals(result, Left("entryTtl must be at least 1 millisecond"))
   }
 
   test("negative entryTtl rejected") {
     val result = ClientSideCacheConfig(maxCacheKb = 1024, entryTtl = -1.second)
-    assertEquals(result, Left("entryTtl must be positive"))
+    assertEquals(result, Left("entryTtl must be at least 1 millisecond"))
   }
 
   test("make[Either] returns Right for valid config") {
