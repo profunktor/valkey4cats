@@ -10,7 +10,12 @@ ThisBuild / mimaBaseVersion := "0.1.0"
 ThisBuild / organization := "dev.profunktor"
 ThisBuild / homepage := Some(url("https://valkey.profunktor.dev"))
 ThisBuild / developers := List(
-  Developer("yisraelU", "Yisrael Union", "ysrlunion@gmail.com", url("https://github.com/yisraelU"))
+  Developer(
+    "yisraelU",
+    "Yisrael Union",
+    "ysrlunion@gmail.com",
+    url("https://github.com/yisraelU")
+  )
 )
 Test / parallelExecution := false
 
@@ -25,7 +30,10 @@ promptTheme := PromptTheme(
 val commonSettings = Seq(
   organizationName := "Valkey client for Cats Effect & Glide",
   startYear := Some(2018),
-  licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+  licenses += (
+    "Apache-2.0",
+    url("https://www.apache.org/licenses/LICENSE-2.0.txt")
+  ),
   headerLicense := Some(HeaderLicense.ALv2("2018-2025", "ProfunKtor")),
   testFrameworks += new TestFramework("munit.Framework"),
   resolvers += "Apache public" at "https://repository.apache.org/content/groups/public/",
@@ -37,7 +45,10 @@ val commonSettings = Seq(
   autoAPIMappings := true,
   scalafmtOnCompile := true,
   scmInfo := Some(
-    ScmInfo(url("https://github.com/profunktor/valkey4cats"), "scm:git:git@github.com:profunktor/valkey4cats.git")
+    ScmInfo(
+      url("https://github.com/profunktor/valkey4cats"),
+      "scm:git:git@github.com:profunktor/valkey4cats.git"
+    )
   )
 )
 
@@ -52,16 +63,24 @@ lazy val root = project
   .in(file("."))
   .settings(
     name := "valkey4cats",
-    publish / skip := true,
+    publish / skip := true
   )
-  .aggregate(core, effects, log4Cats, examples)
+.aggregate(core, effects, log4Cats, examples)
+  .settings(
+    ScalaUnidoc / siteSubdirName := "api",
+    addMappingsToSiteDir(
+      ScalaUnidoc / packageDoc / mappings,
+      ScalaUnidoc / siteSubdirName
+    )
+  )
+  .enablePlugins(ScalaUnidocPlugin)
 
 lazy val core = project
   .in(file("modules/core"))
   .settings(commonSettings)
   .settings(
     name := "valkey4cats-core",
-    libraryDependencies ++= Dependencies.Groups.core ++ Dependencies.Groups.test,
+    libraryDependencies ++= Dependencies.Groups.core ++ Dependencies.Groups.test
   )
 
 lazy val effects = project
@@ -93,6 +112,9 @@ lazy val examples = project
   )
 
 // Convenience commands
-addCommandAlias("compileAll", ";core/compile ;effects/compile ;examples/compile")
+addCommandAlias(
+  "compileAll",
+  ";core/compile ;effects/compile ;examples/compile"
+)
 addCommandAlias("testAll", ";core/test ;effects/test")
 addCommandAlias("testAllQuick", ";core/testQuick ;effects/testQuick")
