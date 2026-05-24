@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400" opacity="0.08">
+  <!-- Abstract connection/node pattern representing distributed data -->
+  <!-- Nodes -->
+  <circle cx="150" cy="100" r="6" fill="white"/>
+  <circle cx="300" cy="60" r="4" fill="white"/>
+  <circle cx="450" cy="120" r="8" fill="white"/>
+  <circle cx="600" cy="80" r="5" fill="white"/>
+  <circle cx="700" cy="150" r="6" fill="white"/>
+  <circle cx="200" cy="250" r="5" fill="white"/>
+  <circle cx="350" cy="300" r="7" fill="white"/>
+  <circle cx="500" cy="260" r="4" fill="white"/>
+  <circle cx="650" cy="320" r="6" fill="white"/>
+  <circle cx="100" cy="350" r="4" fill="white"/>
+  <circle cx="750" cy="250" r="5" fill="white"/>
+  <circle cx="400" cy="200" r="10" fill="white"/>
+  <!-- Connections -->
+  <line x1="150" y1="100" x2="300" y2="60" stroke="white" stroke-width="1"/>
+  <line x1="300" y1="60" x2="450" y2="120" stroke="white" stroke-width="1"/>
+  <line x1="450" y1="120" x2="600" y2="80" stroke="white" stroke-width="1"/>
+  <line x1="600" y1="80" x2="700" y2="150" stroke="white" stroke-width="1"/>
+  <line x1="150" y1="100" x2="200" y2="250" stroke="white" stroke-width="0.5"/>
+  <line x1="200" y1="250" x2="350" y2="300" stroke="white" stroke-width="1"/>
+  <line x1="350" y1="300" x2="500" y2="260" stroke="white" stroke-width="0.5"/>
+  <line x1="500" y1="260" x2="650" y2="320" stroke="white" stroke-width="1"/>
+  <line x1="700" y1="150" x2="750" y2="250" stroke="white" stroke-width="0.5"/>
+  <line x1="450" y1="120" x2="400" y2="200" stroke="white" stroke-width="1.5"/>
+  <line x1="400" y1="200" x2="350" y2="300" stroke="white" stroke-width="1"/>
+  <line x1="400" y1="200" x2="500" y2="260" stroke="white" stroke-width="1"/>
+  <line x1="400" y1="200" x2="200" y2="250" stroke="white" stroke-width="0.5"/>
+  <line x1="300" y1="60" x2="400" y2="200" stroke="white" stroke-width="0.5"/>
+  <line x1="600" y1="80" x2="400" y2="200" stroke="white" stroke-width="0.5"/>
+  <line x1="650" y1="320" x2="750" y2="250" stroke="white" stroke-width="0.5"/>
+  <line x1="100" y1="350" x2="200" y2="250" stroke="white" stroke-width="0.5"/>
+  <!-- Pulse rings on center node -->
+  <circle cx="400" cy="200" r="20" fill="none" stroke="white" stroke-width="0.5" opacity="0.5"/>
+  <circle cx="400" cy="200" r="35" fill="none" stroke="white" stroke-width="0.3" opacity="0.3"/>
+</svg>
