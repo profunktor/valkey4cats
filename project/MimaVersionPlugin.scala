@@ -1,4 +1,4 @@
-import com.github.sbt.git.SbtGit.{ git, GitKeys }
+import com.github.sbt.git.SbtGit.{git, GitKeys}
 import com.github.sbt.git.GitPlugin
 import com.github.sbt.git.GitRunner
 import com.typesafe.tools.mima.plugin.MimaPlugin
@@ -20,7 +20,7 @@ object MimaVersionPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    val ReleaseTag           = """^v((?:\d+\.){2}\d+(?:-.*)?)$""".r
+    val ReleaseTag = """^v((?:\d+\.){2}\d+(?:-.*)?)$""".r
     lazy val mimaBaseVersion = git.baseVersion
     lazy val mimaReportBinaryIssuesIfRelevant = taskKey[Unit](
       "A wrapper around the mima task which ensures publishArtifact is set to true"
@@ -57,9 +57,8 @@ object MimaVersionPlugin extends AutoPlugin {
         )
 
         val description = Try("git describe --tags --match v*".!!.trim).toOption
-        val optDistance = description collect {
-          case Description(distance) =>
-            distance + "-"
+        val optDistance = description collect { case Description(distance) =>
+          distance + "-"
         }
 
         val distance = optDistance.getOrElse("")
@@ -83,8 +82,8 @@ object MimaVersionPlugin extends AutoPlugin {
     ).value,
     mimaPreviousArtifacts := {
       val current = version.value
-      val org     = organization.value
-      val n       = moduleName.value
+      val org = organization.value
+      val n = moduleName.value
 
       val FullTag = """^(\d+)\.(\d+)\.(\d+).*""" r
       val TagBase = """^(\d+)\.(\d+).*""" r
@@ -109,9 +108,8 @@ object MimaVersionPlugin extends AutoPlugin {
           else
             s"^v($major\\.\\d+\\.\\d+)$$".r
 
-        val versions = tags collect {
-          case Pattern(version) =>
-            version
+        val versions = tags collect { case Pattern(version) =>
+          version
         }
 
         def lessThanPatch(patch: String): String => Boolean = { tagVersion =>
@@ -132,7 +130,9 @@ object MimaVersionPlugin extends AutoPlugin {
           }
 
         notCurrent
-          .map(v => projectID.value.withRevision(v).withExplicitArtifacts(Vector.empty))
+          .map(v =>
+            projectID.value.withRevision(v).withExplicitArtifacts(Vector.empty)
+          )
           .toSet
       }
     }

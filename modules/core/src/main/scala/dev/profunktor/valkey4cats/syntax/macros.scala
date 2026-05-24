@@ -13,7 +13,7 @@ object macros {
         s: String
     )(using Quotes): Either[String, Expr[ValkeyUri]] = {
       ValkeyUri.fromString(s) match {
-        case Left(e) => Left(e.getMessage)
+        case Left(e)  => Left(e.getMessage)
         case Right(_) =>
           val uriStr = Expr(s)
           Right('{ ValkeyUri.unsafeFromString($uriStr) })
