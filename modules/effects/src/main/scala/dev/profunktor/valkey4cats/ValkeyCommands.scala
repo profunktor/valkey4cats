@@ -2,7 +2,10 @@ package dev.profunktor.valkey4cats
 
 import dev.profunktor.valkey4cats.algebra.*
 
-/** Composite trait that provides access to all Valkey command algebras */
+/** Composite trait that provides access to all Valkey command algebras.
+  *
+  * Not designed for external implementation — use the constructors in [[Valkey]].
+  */
 trait ValkeyCommands[F[_], K, V]
     extends StringCommands[F, K, V]
     with KeyCommands[F, K, V]

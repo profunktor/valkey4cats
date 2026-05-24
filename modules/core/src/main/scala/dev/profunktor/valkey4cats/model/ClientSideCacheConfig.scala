@@ -30,6 +30,7 @@ object ClientSideCacheConfig {
       enableMetrics: Boolean
   ) extends ClientSideCacheConfig
 
+  /** @param entryTtl minimum 1 millisecond (sub-ms durations are rejected since Glide uses ms granularity) */
   def apply(
       maxCacheKb: Long,
       entryTtl: FiniteDuration,
