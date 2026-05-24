@@ -34,11 +34,11 @@ sealed abstract class ValkeyClientConfig {
   ): ValkeyClientConfig =
     ValkeyClientConfig.unsafeCreate(common, databaseId)
 
-  /** Convert to Glide's GlideClientConfiguration */
   private[valkey4cats] def toGlide: G.GlideClientConfiguration = {
     val builder = G.GlideClientConfiguration.builder()
     val tlsAdvancedConfig = common.applyToGlideBuilder(builder)
     databaseId.foreach(id => builder.databaseId(id.value))
+    common.clientSideCache.foreach(c => builder.clientSideCache(c.toGlide))
     if (common.connectionTimeout.isDefined || tlsAdvancedConfig.isDefined) {
       val advancedBuilder = G.AdvancedGlideClientConfiguration.builder()
       common.connectionTimeout.foreach(timeout =>
@@ -131,6 +131,12 @@ sealed abstract class ValkeyClientConfig {
 
   def withClientAZ(az: String): ValkeyClientConfig =
     copy(common = common.withClientAZ(az))
+
+  def withClientSideCache(config: ClientSideCacheConfig): ValkeyClientConfig =
+    copy(common = common.withClientSideCache(config))
+
+  def withoutClientSideCache: ValkeyClientConfig =
+    copy(common = common.withoutClientSideCache)
 }
 
 object ValkeyClientConfig {

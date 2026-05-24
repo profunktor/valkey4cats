@@ -24,6 +24,7 @@ sealed abstract class CommonConfig {
   def libName: Option[String]
   def lazyConnect: Option[Boolean]
   def clientAZ: Option[String]
+  def clientSideCache: Option[ClientSideCacheConfig]
 
   private[model] def copy(
       addresses: List[NodeAddress] = this.addresses,
@@ -38,7 +39,8 @@ sealed abstract class CommonConfig {
       connectionTimeout: Option[FiniteDuration] = this.connectionTimeout,
       libName: Option[String] = this.libName,
       lazyConnect: Option[Boolean] = this.lazyConnect,
-      clientAZ: Option[String] = this.clientAZ
+      clientAZ: Option[String] = this.clientAZ,
+      clientSideCache: Option[ClientSideCacheConfig] = this.clientSideCache
   ): CommonConfig =
     CommonConfig.unsafeCreate(
       addresses,
@@ -53,7 +55,8 @@ sealed abstract class CommonConfig {
       connectionTimeout,
       libName,
       lazyConnect,
-      clientAZ
+      clientAZ,
+      clientSideCache
     )
 
   private[model] def applyToGlideBuilder(
@@ -147,6 +150,12 @@ sealed abstract class CommonConfig {
 
   def withClientAZ(az: String): CommonConfig =
     copy(clientAZ = Some(az))
+
+  def withClientSideCache(config: ClientSideCacheConfig): CommonConfig =
+    copy(clientSideCache = Some(config))
+
+  def withoutClientSideCache: CommonConfig =
+    copy(clientSideCache = None)
 }
 
 object CommonConfig {
@@ -164,7 +173,8 @@ object CommonConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ) extends CommonConfig
 
   def apply(
@@ -180,7 +190,8 @@ object CommonConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): Either[String, CommonConfig] = {
     val errors = validate(
       addresses,
@@ -204,7 +215,8 @@ object CommonConfig {
           connectionTimeout,
           libName,
           lazyConnect,
-          clientAZ
+          clientAZ,
+          clientSideCache
         )
       )
   }
@@ -222,7 +234,8 @@ object CommonConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): CommonConfig =
     CommonConfigImpl(
       addresses,
@@ -237,7 +250,8 @@ object CommonConfig {
       connectionTimeout,
       libName,
       lazyConnect,
-      clientAZ
+      clientAZ,
+      clientSideCache
     )
 
   private[model] def validate(

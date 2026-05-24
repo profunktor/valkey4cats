@@ -3566,6 +3566,26 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
           AutoClaimIdResult(nextCursor, claimedIds, deleted)
         }
     }
+
+  // ==================== Cache Commands ====================
+
+  override def cacheHitRate: F[Double] =
+    baseClient.getCacheHitRate().futureLift.map(_.doubleValue())
+
+  override def cacheMissRate: F[Double] =
+    baseClient.getCacheMissRate().futureLift.map(_.doubleValue())
+
+  override def cacheEntryCount: F[Long] =
+    baseClient.getCacheEntryCount().futureLift.map(_.longValue())
+
+  override def cacheEvictions: F[Long] =
+    baseClient.getCacheEvictions().futureLift.map(_.longValue())
+
+  override def cacheExpirations: F[Long] =
+    baseClient.getCacheExpirations().futureLift.map(_.longValue())
+
+  override def cacheTotalLookups: F[Long] =
+    baseClient.getCacheTotalLookups().futureLift.map(_.longValue())
 }
 
 /** Standalone client commands implementation */

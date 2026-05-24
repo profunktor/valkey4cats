@@ -35,10 +35,10 @@ sealed abstract class ValkeyClusterConfig {
   ): ValkeyClusterConfig =
     ValkeyClusterConfig.unsafeCreate(common, refreshTopologyFromInitialNodes)
 
-  /** Convert to Glide's GlideClusterClientConfiguration */
   private[valkey4cats] def toGlide: G.GlideClusterClientConfiguration = {
     val builder = G.GlideClusterClientConfiguration.builder()
     val tlsAdvancedConfig = common.applyToGlideBuilder(builder)
+    common.clientSideCache.foreach(c => builder.clientSideCache(c.toGlide))
     if (
       common.connectionTimeout.isDefined ||
       refreshTopologyFromInitialNodes.isDefined ||
@@ -119,6 +119,12 @@ sealed abstract class ValkeyClusterConfig {
 
   def withClientAZ(az: String): ValkeyClusterConfig =
     copy(common = common.withClientAZ(az))
+
+  def withClientSideCache(config: ClientSideCacheConfig): ValkeyClusterConfig =
+    copy(common = common.withClientSideCache(config))
+
+  def withoutClientSideCache: ValkeyClusterConfig =
+    copy(common = common.withoutClientSideCache)
 
   def withRefreshTopologyFromInitialNodesEnabled: ValkeyClusterConfig =
     copy(refreshTopologyFromInitialNodes = Some(true))
