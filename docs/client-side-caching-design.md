@@ -133,13 +133,13 @@ val config = ValkeyClientConfig.builder
   .withClientSideCache(cacheConfig)
 ```
 
-Sharing across connections:
+Reusing the same config across connections (each client gets its own independent cache instance):
 ```scala
-val shared = ClientSideCacheConfig(maxCacheKb = 2048, entryTtl = 30.seconds)
+val cacheSettings = ClientSideCacheConfig(maxCacheKb = 2048, entryTtl = 30.seconds)
   .fold(sys.error, identity)
 
-val standalone = ValkeyClientConfig.builder.withClientSideCache(shared)
-val cluster = ValkeyClusterConfig.builder.withClientSideCache(shared)
+val standalone = ValkeyClientConfig.builder.withClientSideCache(cacheSettings)
+val cluster = ValkeyClusterConfig.builder(host"node1", port"6379").withClientSideCache(cacheSettings)
 ```
 
 ## File Changes
