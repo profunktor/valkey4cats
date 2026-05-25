@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48" width="280" height="48">
-  <!-- Geometric V mark -->
-  <polygon points="4,38 16,6 22,6 12,34 28,34 22,38" fill="#6983ff"/>
-  <polygon points="22,6 28,6 38,38 32,38" fill="#4a63d4"/>
-  <!-- Wordmark -->
-  <text x="46" y="35" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#1a2026">alkey</text>
-  <text x="152" y="35" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="400" fill="#4a5568">4Cats</text>
-</svg>
