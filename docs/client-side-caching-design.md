@@ -35,7 +35,7 @@ baseClient.getCacheTotalLookups()  -> CompletableFuture[Long]
 - No server-side invalidation (entries may go stale before TTL)
 - Nil responses are NOT cached
 - Entries exceeding `maxCacheKb` are silently skipped
-- Multiple clients can share one `ClientSideCache` instance (via cacheId)
+- Each client gets its own independent cache instance (Glide assigns a unique cacheId per build)
 
 ## Scala API
 
