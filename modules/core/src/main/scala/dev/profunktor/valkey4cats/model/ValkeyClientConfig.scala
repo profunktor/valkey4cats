@@ -161,7 +161,8 @@ object ValkeyClientConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): Either[String, ValkeyClientConfig] =
     CommonConfig(
       addresses,
@@ -176,7 +177,8 @@ object ValkeyClientConfig {
       connectionTimeout,
       libName,
       lazyConnect,
-      clientAZ
+      clientAZ,
+      clientSideCache
     ).map(ValkeyClientConfigImpl(_, databaseId))
 
   private[model] def unsafeCreate(
@@ -215,7 +217,8 @@ object ValkeyClientConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): F[ValkeyClientConfig] =
     ApplicativeThrow[F].fromEither(
       apply(
@@ -232,7 +235,8 @@ object ValkeyClientConfig {
         connectionTimeout,
         libName,
         lazyConnect,
-        clientAZ
+        clientAZ,
+        clientSideCache
       ).left.map(msg => new IllegalArgumentException(msg))
     )
 

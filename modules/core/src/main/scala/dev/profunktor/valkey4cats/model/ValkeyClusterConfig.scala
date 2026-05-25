@@ -155,7 +155,8 @@ object ValkeyClusterConfig {
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
       clientAZ: Option[String] = None,
-      refreshTopologyFromInitialNodes: Option[Boolean] = None
+      refreshTopologyFromInitialNodes: Option[Boolean] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): Either[String, ValkeyClusterConfig] = {
     val extraErrors = List.newBuilder[String]
     if (addresses.isEmpty)
@@ -186,7 +187,8 @@ object ValkeyClusterConfig {
             connectionTimeout,
             libName,
             lazyConnect,
-            clientAZ
+            clientAZ,
+            clientSideCache
           ),
           refreshTopologyFromInitialNodes
         )
@@ -275,7 +277,8 @@ object ValkeyClusterConfig {
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
       clientAZ: Option[String] = None,
-      refreshTopologyFromInitialNodes: Option[Boolean] = None
+      refreshTopologyFromInitialNodes: Option[Boolean] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): F[ValkeyClusterConfig] =
     ApplicativeThrow[F].fromEither(
       apply(
@@ -292,7 +295,8 @@ object ValkeyClusterConfig {
         libName,
         lazyConnect,
         clientAZ,
-        refreshTopologyFromInitialNodes
+        refreshTopologyFromInitialNodes,
+        clientSideCache
       ).left.map(msg => new IllegalArgumentException(msg))
     )
 
