@@ -1,7 +1,7 @@
 package dev.profunktor.valkey4cats.model
 
 import cats.ApplicativeThrow
-import com.comcast.ip4s.{Host, Port}
+import com.comcast.ip4s.{Host, Port, host}
 import glide.api.models.configuration as G
 
 import scala.concurrent.duration.FiniteDuration
@@ -240,8 +240,7 @@ object ValkeyClientConfig {
       ).left.map(msg => new IllegalArgumentException(msg))
     )
 
-  private val localhostHost: Host =
-    Host.fromString("localhost").get
+  private val localhostHost: Host = host"localhost"
 
   val localhost: ValkeyClientConfig = unsafeCreate(
     CommonConfig.unsafeCreate(

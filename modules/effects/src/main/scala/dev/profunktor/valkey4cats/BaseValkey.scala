@@ -1471,16 +1471,11 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         Array[glide.api.models.GlideString]
       ]
   ): Option[(K, List[V])] =
-    if (result == null || result.isEmpty) None
-    else {
-      val entry = result.asScala.head
-      Some(
-        (
-          keyCodec.decode(entry._1),
-          entry._2.toList.map(valueCodec.decode)
-        )
-      )
-    }
+    Option(result)
+      .flatMap(_.asScala.headOption)
+      .map { (k, vs) =>
+        (keyCodec.decode(k), vs.toList.map(valueCodec.decode))
+      }
 
   override def lmpop(
       keys: List[K],
@@ -2366,11 +2361,9 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
   private def parseZmpopResult(
       result: java.util.Map[glide.api.models.GlideString, java.lang.Object]
   ): Option[(K, List[(V, Double)])] =
-    if (result == null || result.isEmpty) None
-    else {
-      val entry = result.asScala.head
-      val key = keyCodec.decode(entry._1)
-      val membersScores = entry._2
+    Option(result).flatMap(_.asScala.headOption).map { (gs, obj) =>
+      val key = keyCodec.decode(gs)
+      val membersScores = obj
         .asInstanceOf[
           java.util.Map[glide.api.models.GlideString, java.lang.Double]
         ]
@@ -2379,7 +2372,7 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         .map { case (gs, score) =>
           (valueCodec.decode(gs), score.doubleValue())
         }
-      Some((key, membersScores))
+      (key, membersScores)
     }
 
   override def zmpop(

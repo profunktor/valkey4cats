@@ -221,8 +221,7 @@ object ValkeyClusterConfig {
               ApplicativeThrow[F].raiseError(
                 new IllegalArgumentException(error)
               )
-            case Right(_) =>
-              val first = parsedUris.head
+            case Right(first) =>
               val allAddresses =
                 parsedUris.map(uri => NodeAddress(uri.host, uri.port))
               ApplicativeThrow[F].pure(
@@ -242,12 +241,10 @@ object ValkeyClusterConfig {
 
   private def validateConsistentUris(
       uris: List[ValkeyUri]
-  ): Either[String, Unit] = {
-    if (uris.isEmpty) Left("No URIs provided")
-    else {
-      val first = uris.head
-      val inconsistent = uris.tail.find(!first.isConsistentWith(_))
-      inconsistent match {
+  ): Either[String, ValkeyUri] = uris match {
+    case Nil => Left("No URIs provided")
+    case first :: rest =>
+      rest.find(!first.isConsistentWith(_)) match {
         case Some(uri) =>
           if (first.useTls != uri.useTls)
             Left(
@@ -258,9 +255,8 @@ object ValkeyClusterConfig {
             Left(
               "Inconsistent credentials: all cluster seed nodes must have the same authentication settings."
             )
-        case None => Right(())
+        case None => Right(first)
       }
-    }
   }
 
   def make[F[_]: ApplicativeThrow](

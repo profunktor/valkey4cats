@@ -7,11 +7,12 @@ import scala.concurrent.duration.*
 
 class ValkeyClientConfigSuite extends FunSuite {
 
+  private def rightOrFail[A](either: Either[?, A]): A =
+    either.fold(e => fail(s"Expected Right but got Left($e)"), identity)
+
   test("fromUriString should parse simple redis URI") {
     val result = ValkeyClientConfig.fromUriString("redis://localhost:6379")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.addresses.size, 1)
     assertEquals(config.addresses.head.host, host"localhost")
@@ -23,9 +24,7 @@ class ValkeyClientConfigSuite extends FunSuite {
 
   test("fromUriString should parse simple valkey URI") {
     val result = ValkeyClientConfig.fromUriString("valkey://localhost:6379")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.addresses.size, 1)
     assertEquals(config.addresses.head.host, host"localhost")
@@ -37,9 +36,7 @@ class ValkeyClientConfigSuite extends FunSuite {
 
   test("fromUriString should parse rediss URI with TLS") {
     val result = ValkeyClientConfig.fromUriString("rediss://secure-server:6380")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.addresses.head.host, host"secure-server")
     assertEquals(config.addresses.head.port, port"6380")
@@ -49,9 +46,7 @@ class ValkeyClientConfigSuite extends FunSuite {
   test("fromUriString should parse valkeys URI with TLS") {
     val result =
       ValkeyClientConfig.fromUriString("valkeys://secure-server:6380")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.addresses.head.host, host"secure-server")
     assertEquals(config.addresses.head.port, port"6380")
@@ -61,70 +56,57 @@ class ValkeyClientConfigSuite extends FunSuite {
   test("fromUriString should parse URI with password") {
     val result =
       ValkeyClientConfig.fromUriString("redis://:mypassword@localhost:6379")
+    val config = rightOrFail(result)
 
-    assert(result.isRight)
-    val config = result.toOption.get
-
-    assert(config.credentials.isDefined)
-    config.credentials.get match {
-      case ServerCredentials.Password(pwd) => assertEquals(pwd, "mypassword")
-      case _ => fail("Expected Password credentials")
+    config.credentials match {
+      case Some(ServerCredentials.Password(pwd)) =>
+        assertEquals(pwd, "mypassword")
+      case other => fail(s"Expected Some(Password(...)) but got $other")
     }
   }
 
   test("fromUriString should parse valkey URI with password") {
     val result =
       ValkeyClientConfig.fromUriString("valkey://:mypassword@localhost:6379")
+    val config = rightOrFail(result)
 
-    assert(result.isRight)
-    val config = result.toOption.get
-
-    assert(config.credentials.isDefined)
-    config.credentials.get match {
-      case ServerCredentials.Password(pwd) => assertEquals(pwd, "mypassword")
-      case _ => fail("Expected Password credentials")
+    config.credentials match {
+      case Some(ServerCredentials.Password(pwd)) =>
+        assertEquals(pwd, "mypassword")
+      case other => fail(s"Expected Some(Password(...)) but got $other")
     }
   }
 
   test("fromUriString should parse URI with username and password") {
     val result =
       ValkeyClientConfig.fromUriString("redis://alice:secret@localhost:6379")
+    val config = rightOrFail(result)
 
-    assert(result.isRight)
-    val config = result.toOption.get
-
-    assert(config.credentials.isDefined)
-    config.credentials.get match {
-      case ServerCredentials.UsernamePassword(user, pwd) =>
+    config.credentials match {
+      case Some(ServerCredentials.UsernamePassword(user, pwd)) =>
         assertEquals(user, "alice")
         assertEquals(pwd, "secret")
-      case _ => fail("Expected UsernamePassword credentials")
+      case other => fail(s"Expected Some(UsernamePassword(...)) but got $other")
     }
   }
 
   test("fromUriString should parse URI with database number") {
     val result = ValkeyClientConfig.fromUriString("redis://localhost:6379/2")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.databaseId.map(_.value), Some(2))
   }
 
   test("fromUriString should parse valkey URI with database number") {
     val result = ValkeyClientConfig.fromUriString("valkey://localhost:6379/3")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.databaseId.map(_.value), Some(3))
   }
 
   test("fromUriString should use default port when not specified") {
     val result = ValkeyClientConfig.fromUriString("redis://localhost")
-
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
 
     assertEquals(config.addresses.head.port, port"6379")
   }
@@ -174,7 +156,7 @@ class ValkeyClientConfigSuite extends FunSuite {
   test("withDatabase should accept valid database IDs") {
     val result = ValkeyClientConfig.localhost.withDatabase(15)
     assert(result.isRight)
-    assertEquals(result.toOption.get.databaseId.map(_.value), Some(15))
+    assertEquals(rightOrFail(result).databaseId.map(_.value), Some(15))
   }
 
   test("ServerCredentials equality should work correctly") {
