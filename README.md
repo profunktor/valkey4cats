@@ -50,6 +50,17 @@ libraryDependencies += "dev.profunktor" %% "valkey4cats-effects" % Version
 libraryDependencies += "dev.profunktor" %% "valkey4cats-log4cats" % Version
 ```
 
+## Documentation
+
+The documentation site is built with [Docusaurus](https://docusaurus.io/) and lives in the `website/` directory.
+
+```bash
+cd website
+npm install
+npm start       # dev server at localhost:3000
+npm run build   # static build to website/build/
+```
+
 ## Running the tests locally
 
 Start both a single Valkey node and a cluster using `docker-compose`:

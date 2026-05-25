@@ -1,6 +1,5 @@
 import com.scalapenos.sbt.prompt.SbtPrompt.autoImport.*
 import com.scalapenos.sbt.prompt.*
-import microsites.{ExtraMdFileConfig, MicrositeFavicon}
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -66,15 +65,7 @@ lazy val root = project
     name := "valkey4cats",
     publish / skip := true
   )
-  .aggregate(core, effects, log4Cats, examples, microsite)
-  .settings(
-    ScalaUnidoc / siteSubdirName := "api",
-    addMappingsToSiteDir(
-      ScalaUnidoc / packageDoc / mappings,
-      ScalaUnidoc / siteSubdirName
-    )
-  )
-  .enablePlugins(ScalaUnidocPlugin)
+.aggregate(core, effects, log4Cats, examples)
 
 lazy val core = project
   .in(file("modules/core"))
@@ -112,54 +103,6 @@ lazy val examples = project
     libraryDependencies ++= Dependencies.Groups.examples
   )
 
-lazy val microsite = project
-  .in(file("site"))
-  .enablePlugins(MicrositesPlugin)
-  .settings(commonSettings)
-  .settings(noPublish)
-  .settings(
-    micrositeName := "Valkey4Cats",
-    micrositeDescription := "Valkey client for Cats Effect & Glide",
-    micrositeAuthor := "ProfunKtor",
-    micrositeGithubOwner := "profunktor",
-    micrositeGithubRepo := "valkey4cats",
-    micrositeUrl := "https://valkey.profunktor.dev",
-    micrositeBaseUrl := "",
-    micrositeHighlightTheme := "atom-one-light",
-    micrositeFavicons := Seq(MicrositeFavicon("valkey-favicon.png", "32x32")),
-    micrositeGitterChannel := false,
-    micrositeDocumentationUrl := "quickstart.html",
-    micrositeFooterText := Some(
-      """<p>Valkey4Cats is maintained by <a href="https://github.com/profunktor">ProfunKtor</a>. Licensed under Apache 2.0.</p>"""
-    ),
-    micrositePalette := Map(
-      "brand-primary" -> "#6983ff",
-      "brand-secondary" -> "#1a2026",
-      "brand-danger" -> "#e53e3e",
-      "gray-dark" -> "#2d3748",
-      "gray" -> "#4a5568",
-      "gray-light" -> "#e2e8f0",
-      "gray-lighter" -> "#f7fafc",
-      "white-color" -> "#FFFFFF"
-    ),
-    micrositeExtraMdFiles := Map(
-      file("README.md") -> ExtraMdFileConfig(
-        "index.md",
-        "home",
-        Map("title" -> "Home", "position" -> "0")
-      )
-    ),
-    micrositeExtraMdFilesOutput := (Compile / resourceManaged).value / "jekyll",
-    micrositePushSiteWith := GitHub4s,
-    micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
-    scalacOptions := scalacOptions.value.filterNot { opt =>
-      opt == "-Werror" || opt == "-Xfatal-warnings" ||
-      opt.startsWith("-Wvalue") || opt.startsWith("-Wnonunit") ||
-      opt.startsWith("-Wunused") || opt == "-deprecation"
-    }
-  )
-  .dependsOn(effects, examples)
-
 // Convenience commands
 addCommandAlias(
   "compileAll",
@@ -167,5 +110,3 @@ addCommandAlias(
 )
 addCommandAlias("testAll", ";core/test ;effects/test")
 addCommandAlias("testAllQuick", ";core/testQuick ;effects/testQuick")
-addCommandAlias("buildSite", ";makeMicrosite")
-addCommandAlias("publishSite", ";publishMicrosite")
