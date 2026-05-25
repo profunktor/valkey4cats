@@ -2,7 +2,7 @@ package dev.profunktor.valkey4cats
 
 import dev.profunktor.valkey4cats.algebra.*
 
-/** Composite trait providing all Valkey command algebras and client-side cache metrics.
+/** Composite trait providing all Valkey command algebras.
   *
   * Not designed for external implementation — use the constructors in [[Valkey]].
   */
@@ -21,4 +21,3 @@ trait ValkeyCommands[F[_], K, V]
     with ScriptingCommands[F, K, V]
     with ServerCommands[F, K, V]
     with ConnectionCommands[F, K, V]
-    with CacheMetrics[F]

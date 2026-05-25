@@ -61,13 +61,13 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
     protected val keyCodec: Codec[K],
     protected val valueCodec: Codec[V],
     protected val tx: TxRunner[F]
-)(implicit F: Async[F])
+)(implicit val asyncF: Async[F])
     extends ValkeyCommands[F, K, V] {
 
-  private implicit val futureLift: FutureLift[F] = MkValkey[F].futureLift
-  private implicit val logger: Log[F] = MkValkey[F].log
+  protected implicit val futureLift: FutureLift[F] = MkValkey[F].futureLift
+  protected implicit val logger: Log[F] = MkValkey[F].log
 
-  private val baseClient: BaseClient = connection.baseClient
+  protected val baseClient: BaseClient = connection.baseClient
 
   private def optDecodeV(gs: glide.api.models.GlideString): Option[V] =
     Option(gs).map(valueCodec.decode)
@@ -3592,25 +3592,31 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
         }
     }
 
-  // ==================== Cache Metrics ====================
+}
+
+private[valkey4cats] trait CacheMetricsImpl[F[_], K, V] extends CachedValkeyCommands[F, K, V] {
+  self: BaseValkey[F, K, V] =>
+
+  private def liftAndMap[A, B](cf: java.util.concurrent.CompletableFuture[A])(f: A => B): F[B] =
+    asyncF.map(futureLift.lift(cf))(f)
 
   override def cacheHitRate: F[Double] =
-    baseClient.getCacheHitRate().futureLift.map(_.doubleValue())
+    liftAndMap(baseClient.getCacheHitRate())(_.doubleValue())
 
   override def cacheMissRate: F[Double] =
-    baseClient.getCacheMissRate().futureLift.map(_.doubleValue())
+    liftAndMap(baseClient.getCacheMissRate())(_.doubleValue())
 
   override def cacheEntryCount: F[Long] =
-    baseClient.getCacheEntryCount().futureLift.map(_.longValue())
+    liftAndMap(baseClient.getCacheEntryCount())(_.longValue())
 
   override def cacheEvictions: F[Long] =
-    baseClient.getCacheEvictions().futureLift.map(_.longValue())
+    liftAndMap(baseClient.getCacheEvictions())(_.longValue())
 
   override def cacheExpirations: F[Long] =
-    baseClient.getCacheExpirations().futureLift.map(_.longValue())
+    liftAndMap(baseClient.getCacheExpirations())(_.longValue())
 
   override def cacheTotalLookups: F[Long] =
-    baseClient.getCacheTotalLookups().futureLift.map(_.longValue())
+    liftAndMap(baseClient.getCacheTotalLookups())(_.longValue())
 }
 
 /** Standalone client commands implementation */
@@ -3638,3 +3644,31 @@ private[valkey4cats] class ValkeyCluster[F[_]: MkValkey: Async, K, V](
       valueCodec,
       tx
     )
+
+/** Standalone client with client-side cache metrics */
+private[valkey4cats] class CachedValkeyStandalone[F[_]: MkValkey: Async, K, V](
+    client: ValkeyClient,
+    keyCodec: Codec[K],
+    valueCodec: Codec[V],
+    tx: TxRunner[F]
+) extends BaseValkey[F, K, V](
+      ValkeyConnection.Standalone(client),
+      keyCodec,
+      valueCodec,
+      tx
+    )
+    with CacheMetricsImpl[F, K, V]
+
+/** Cluster client with client-side cache metrics */
+private[valkey4cats] class CachedValkeyCluster[F[_]: MkValkey: Async, K, V](
+    client: ValkeyClusterClient,
+    keyCodec: Codec[K],
+    valueCodec: Codec[V],
+    tx: TxRunner[F]
+) extends BaseValkey[F, K, V](
+      ValkeyConnection.Clustered(client),
+      keyCodec,
+      valueCodec,
+      tx
+    )
+    with CacheMetricsImpl[F, K, V]
