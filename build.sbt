@@ -66,14 +66,6 @@ lazy val root = project
     publish / skip := true
   )
 .aggregate(core, effects, log4Cats, examples)
-  .settings(
-    ScalaUnidoc / siteSubdirName := "api",
-    addMappingsToSiteDir(
-      ScalaUnidoc / packageDoc / mappings,
-      ScalaUnidoc / siteSubdirName
-    )
-  )
-  .enablePlugins(ScalaUnidocPlugin)
 
 lazy val core = project
   .in(file("modules/core"))
