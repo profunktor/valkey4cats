@@ -5,6 +5,13 @@ import glide.api.models.configuration.{ClientSideCache => GlideClientSideCache}
 
 import scala.concurrent.duration.FiniteDuration
 
+/** Configuration for Glide's client-side cache (local, TTL-based, Rust-backed).
+  *
+  * Only `GET`, `HGETALL`, and `SMEMBERS` responses are cached.
+  * Entries expire lazily (checked on access) and there is no server-push invalidation.
+  *
+  * Use the validated `apply` or `make` constructors on the companion object.
+  */
 sealed abstract class ClientSideCacheConfig {
   def maxCacheKb: Long
   def entryTtl: FiniteDuration
@@ -30,7 +37,13 @@ object ClientSideCacheConfig {
       enableMetrics: Boolean
   ) extends ClientSideCacheConfig
 
-  /** @param entryTtl minimum 1 millisecond (sub-ms durations are rejected since Glide uses ms granularity) */
+  /** Create a validated cache config.
+    *
+    * @param maxCacheKb maximum cache size in kilobytes (must be > 0)
+    * @param entryTtl time-to-live per entry; minimum 1 millisecond (sub-ms rejected since Glide uses ms granularity)
+    * @param evictionPolicy LRU or LFU eviction when cache is full
+    * @param enableMetrics enable hit/miss/eviction counters (required for most CacheMetrics methods)
+    */
   def apply(
       maxCacheKb: Long,
       entryTtl: FiniteDuration,

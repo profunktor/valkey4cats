@@ -15,20 +15,41 @@ import dev.profunktor.valkey4cats.results.{
 /** Valkey Streams commands (XADD, XREAD, XRANGE, consumer groups) */
 trait StreamCommands[F[_], K, V] {
 
+  /** Append an entry to a stream. Returns the auto-generated entry ID.
+    *
+    * @param key the stream key
+    * @param fieldValues map of field-value pairs for the new entry
+    */
   def xadd(key: K, fieldValues: Map[K, V]): F[ValkeyResponse[String]]
 
+  /** Return the number of entries in a stream. */
   def xlen(key: K): F[ValkeyResponse[Long]]
 
+  /** Delete entries from a stream by their IDs.
+    *
+    * @return the number of entries actually deleted (missing IDs are ignored)
+    */
   def xdel(key: K, ids: String*): F[ValkeyResponse[Long]]
 
+  /** Trim a stream to a given length or minimum ID.
+    *
+    * @param strategy MAXLEN or MINID with optional approximate (~) trimming
+    * @return the number of entries removed
+    */
   def xtrim(key: K, strategy: StreamTrimStrategy): F[ValkeyResponse[Long]]
 
+  /** Return entries in a stream within the given ID range (inclusive).
+    *
+    * @param start lower bound (use `StreamRangeBound.Minimum` for the beginning)
+    * @param end upper bound (use `StreamRangeBound.Maximum` for the end)
+    */
   def xrange(
       key: K,
       start: StreamRangeBound,
       end: StreamRangeBound
   ): F[ValkeyResponse[Map[String, List[(K, V)]]]]
 
+  /** Return at most `count` entries in a stream within the given ID range. */
   def xrange(
       key: K,
       start: StreamRangeBound,
@@ -36,12 +57,18 @@ trait StreamCommands[F[_], K, V] {
       count: Long
   ): F[ValkeyResponse[Map[String, List[(K, V)]]]]
 
+  /** Return entries in reverse order (highest to lowest ID).
+    *
+    * @param end upper bound (note: first parameter despite being "end")
+    * @param start lower bound
+    */
   def xrevrange(
       key: K,
       end: StreamRangeBound,
       start: StreamRangeBound
   ): F[ValkeyResponse[Map[String, List[(K, V)]]]]
 
+  /** Return at most `count` entries in reverse order. */
   def xrevrange(
       key: K,
       end: StreamRangeBound,
@@ -49,12 +76,22 @@ trait StreamCommands[F[_], K, V] {
       count: Long
   ): F[ValkeyResponse[Map[String, List[(K, V)]]]]
 
+  /** Create a consumer group for the given stream.
+    *
+    * @param key the stream key
+    * @param group name of the consumer group to create
+    * @param id starting entry ID ("$" for new entries only, "0" for all existing)
+    */
   def xgroupCreate(
       key: K,
       group: K,
       id: String
   ): F[ValkeyResponse[Unit]]
 
+  /** Create a consumer group, optionally creating the stream if it doesn't exist.
+    *
+    * @param mkStream if true, create the stream if it doesn't exist (MKSTREAM option)
+    */
   def xgroupCreate(
       key: K,
       group: K,
@@ -62,40 +99,69 @@ trait StreamCommands[F[_], K, V] {
       mkStream: Boolean
   ): F[ValkeyResponse[Unit]]
 
+  /** Destroy a consumer group. Returns true if the group existed. */
   def xgroupDestroy(key: K, group: K): F[ValkeyResponse[Boolean]]
 
+  /** Create a consumer in a group. Returns true if the consumer was newly created. */
   def xgroupCreateConsumer(
       key: K,
       group: K,
       consumer: K
   ): F[ValkeyResponse[Boolean]]
 
+  /** Delete a consumer from a group.
+    *
+    * @return the number of pending messages that the consumer had before deletion
+    */
   def xgroupDelConsumer(
       key: K,
       group: K,
       consumer: K
   ): F[ValkeyResponse[Long]]
 
+  /** Set the last-delivered ID of a consumer group. */
   def xgroupSetId(key: K, group: K, id: String): F[ValkeyResponse[Unit]]
 
+  /** Acknowledge one or more messages as processed by a consumer group.
+    *
+    * @return the number of messages successfully acknowledged
+    */
   def xack(key: K, group: K, ids: String*): F[ValkeyResponse[Long]]
 
+  /** Read entries from one or more streams starting from the given IDs.
+    * Returns None if no new entries are available.
+    *
+    * @param keysAndIds map of stream key to last-seen entry ID (use "0" for all, "$" for new only)
+    */
   def xread(
       keysAndIds: Map[K, String]
   ): F[ValkeyResponse[Option[Map[K, Map[String, List[(K, V)]]]]]]
 
+  /** Read entries with count limit and optional blocking.
+    *
+    * @param count maximum number of entries to return per stream
+    * @param block block for this many milliseconds (0 = block indefinitely, negative = don't block)
+    */
   def xread(
       keysAndIds: Map[K, String],
       count: Long,
       block: Long
   ): F[ValkeyResponse[Option[Map[K, Map[String, List[(K, V)]]]]]]
 
+  /** Read entries as a consumer group member.
+    * Messages delivered to this consumer must be acknowledged with `xack`.
+    *
+    * @param group the consumer group name
+    * @param consumer the consumer name within the group
+    * @param keysAndIds map of stream key to last-seen ID (use ">" for new undelivered messages)
+    */
   def xreadgroup(
       group: K,
       consumer: K,
       keysAndIds: Map[K, String]
   ): F[ValkeyResponse[Option[Map[K, Map[String, List[(K, V)]]]]]]
 
+  /** Read entries as a consumer group member with count limit and blocking. */
   def xreadgroup(
       group: K,
       consumer: K,
@@ -104,6 +170,10 @@ trait StreamCommands[F[_], K, V] {
       block: Long
   ): F[ValkeyResponse[Option[Map[K, Map[String, List[(K, V)]]]]]]
 
+  /** Read entries as a consumer group member with count, blocking, and noAck options.
+    *
+    * @param noAck if true, messages are not added to the pending entries list (no ack required)
+    */
   def xreadgroup(
       group: K,
       consumer: K,
