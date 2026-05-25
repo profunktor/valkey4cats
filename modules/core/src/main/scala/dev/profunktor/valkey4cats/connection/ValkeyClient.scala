@@ -33,12 +33,11 @@ object ValkeyClient {
   def acquireAndRelease[F[_]: FutureLift: Log: MonadThrow](
       config: ValkeyClientConfig
   ): Resource[F, ValkeyClient] = {
-    val glideConfig = config.toGlide
     val acquire: F[ValkeyClient] =
       Log[F].info(
         s"Creating Valkey client for addresses: ${config.addresses.map(a => s"${a.host}:${a.port}").mkString(", ")}"
       ) *> FutureLift[F]
-        .lift(GlideClient.createClient(glideConfig))
+        .lift(GlideClient.createClient(config.toGlide))
         .map(client => ValkeyClient.apply(client)) <* Log[F].info(
         "Valkey client created successfully"
       )

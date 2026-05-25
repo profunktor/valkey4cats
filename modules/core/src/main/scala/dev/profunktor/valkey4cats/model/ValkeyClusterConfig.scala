@@ -27,6 +27,7 @@ sealed abstract class ValkeyClusterConfig {
   def libName: Option[String] = common.libName
   def lazyConnect: Option[Boolean] = common.lazyConnect
   def clientAZ: Option[String] = common.clientAZ
+  def clientSideCache: Option[ClientSideCacheConfig] = common.clientSideCache
 
   private[model] def copy(
       common: CommonConfig = this.common,
@@ -35,10 +36,10 @@ sealed abstract class ValkeyClusterConfig {
   ): ValkeyClusterConfig =
     ValkeyClusterConfig.unsafeCreate(common, refreshTopologyFromInitialNodes)
 
-  /** Convert to Glide's GlideClusterClientConfiguration */
   private[valkey4cats] def toGlide: G.GlideClusterClientConfiguration = {
     val builder = G.GlideClusterClientConfiguration.builder()
     val tlsAdvancedConfig = common.applyToGlideBuilder(builder)
+    common.clientSideCache.foreach(c => builder.clientSideCache(c.toGlide))
     if (
       common.connectionTimeout.isDefined ||
       refreshTopologyFromInitialNodes.isDefined ||
@@ -120,6 +121,12 @@ sealed abstract class ValkeyClusterConfig {
   def withClientAZ(az: String): ValkeyClusterConfig =
     copy(common = common.withClientAZ(az))
 
+  def withClientSideCache(config: ClientSideCacheConfig): ValkeyClusterConfig =
+    copy(common = common.withClientSideCache(config))
+
+  def withoutClientSideCache: ValkeyClusterConfig =
+    copy(common = common.withoutClientSideCache)
+
   def withRefreshTopologyFromInitialNodesEnabled: ValkeyClusterConfig =
     copy(refreshTopologyFromInitialNodes = Some(true))
 
@@ -148,7 +155,8 @@ object ValkeyClusterConfig {
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
       clientAZ: Option[String] = None,
-      refreshTopologyFromInitialNodes: Option[Boolean] = None
+      refreshTopologyFromInitialNodes: Option[Boolean] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): Either[String, ValkeyClusterConfig] = {
     val extraErrors = List.newBuilder[String]
     if (addresses.isEmpty)
@@ -179,7 +187,8 @@ object ValkeyClusterConfig {
             connectionTimeout,
             libName,
             lazyConnect,
-            clientAZ
+            clientAZ,
+            clientSideCache
           ),
           refreshTopologyFromInitialNodes
         )
@@ -268,7 +277,8 @@ object ValkeyClusterConfig {
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
       clientAZ: Option[String] = None,
-      refreshTopologyFromInitialNodes: Option[Boolean] = None
+      refreshTopologyFromInitialNodes: Option[Boolean] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): F[ValkeyClusterConfig] =
     ApplicativeThrow[F].fromEither(
       apply(
@@ -285,7 +295,8 @@ object ValkeyClusterConfig {
         libName,
         lazyConnect,
         clientAZ,
-        refreshTopologyFromInitialNodes
+        refreshTopologyFromInitialNodes,
+        clientSideCache
       ).left.map(msg => new IllegalArgumentException(msg))
     )
 

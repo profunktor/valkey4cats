@@ -27,6 +27,7 @@ sealed abstract class ValkeyClientConfig {
   def libName: Option[String] = common.libName
   def lazyConnect: Option[Boolean] = common.lazyConnect
   def clientAZ: Option[String] = common.clientAZ
+  def clientSideCache: Option[ClientSideCacheConfig] = common.clientSideCache
 
   private[model] def copy(
       common: CommonConfig = this.common,
@@ -34,11 +35,11 @@ sealed abstract class ValkeyClientConfig {
   ): ValkeyClientConfig =
     ValkeyClientConfig.unsafeCreate(common, databaseId)
 
-  /** Convert to Glide's GlideClientConfiguration */
   private[valkey4cats] def toGlide: G.GlideClientConfiguration = {
     val builder = G.GlideClientConfiguration.builder()
     val tlsAdvancedConfig = common.applyToGlideBuilder(builder)
     databaseId.foreach(id => builder.databaseId(id.value))
+    common.clientSideCache.foreach(c => builder.clientSideCache(c.toGlide))
     if (common.connectionTimeout.isDefined || tlsAdvancedConfig.isDefined) {
       val advancedBuilder = G.AdvancedGlideClientConfiguration.builder()
       common.connectionTimeout.foreach(timeout =>
@@ -131,6 +132,12 @@ sealed abstract class ValkeyClientConfig {
 
   def withClientAZ(az: String): ValkeyClientConfig =
     copy(common = common.withClientAZ(az))
+
+  def withClientSideCache(config: ClientSideCacheConfig): ValkeyClientConfig =
+    copy(common = common.withClientSideCache(config))
+
+  def withoutClientSideCache: ValkeyClientConfig =
+    copy(common = common.withoutClientSideCache)
 }
 
 object ValkeyClientConfig {
@@ -154,7 +161,8 @@ object ValkeyClientConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): Either[String, ValkeyClientConfig] =
     CommonConfig(
       addresses,
@@ -169,7 +177,8 @@ object ValkeyClientConfig {
       connectionTimeout,
       libName,
       lazyConnect,
-      clientAZ
+      clientAZ,
+      clientSideCache
     ).map(ValkeyClientConfigImpl(_, databaseId))
 
   private[model] def unsafeCreate(
@@ -208,7 +217,8 @@ object ValkeyClientConfig {
       connectionTimeout: Option[FiniteDuration] = None,
       libName: Option[String] = None,
       lazyConnect: Option[Boolean] = None,
-      clientAZ: Option[String] = None
+      clientAZ: Option[String] = None,
+      clientSideCache: Option[ClientSideCacheConfig] = None
   ): F[ValkeyClientConfig] =
     ApplicativeThrow[F].fromEither(
       apply(
@@ -225,7 +235,8 @@ object ValkeyClientConfig {
         connectionTimeout,
         libName,
         lazyConnect,
-        clientAZ
+        clientAZ,
+        clientSideCache
       ).left.map(msg => new IllegalArgumentException(msg))
     )
 
