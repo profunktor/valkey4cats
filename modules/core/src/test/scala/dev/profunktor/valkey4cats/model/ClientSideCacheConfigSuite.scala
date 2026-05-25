@@ -5,13 +5,15 @@ import munit.FunSuite
 
 class ClientSideCacheConfigSuite extends FunSuite {
 
+  private def rightOrFail[A](either: Either[?, A]): A =
+    either.fold(e => fail(s"Expected Right but got Left($e)"), identity)
+
   test("valid config succeeds") {
     val result = ClientSideCacheConfig(
       maxCacheKb = 1024,
       entryTtl = 60.seconds
     )
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
     assertEquals(config.maxCacheKb, 1024L)
     assertEquals(config.entryTtl, 60.seconds)
     assertEquals(config.evictionPolicy, CacheEvictionPolicy.LRU)
@@ -25,8 +27,7 @@ class ClientSideCacheConfigSuite extends FunSuite {
       evictionPolicy = CacheEvictionPolicy.LFU,
       enableMetrics = true
     )
-    assert(result.isRight)
-    val config = result.toOption.get
+    val config = rightOrFail(result)
     assertEquals(config.evictionPolicy, CacheEvictionPolicy.LFU)
     assertEquals(config.enableMetrics, true)
   }
@@ -70,6 +71,6 @@ class ClientSideCacheConfigSuite extends FunSuite {
       entryTtl = 60.seconds
     )
     assert(result.isLeft)
-    assert(result.left.toOption.get.isInstanceOf[IllegalArgumentException])
+    result.left.foreach(e => assert(e.isInstanceOf[IllegalArgumentException]))
   }
 }
