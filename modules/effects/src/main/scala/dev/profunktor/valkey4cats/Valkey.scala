@@ -5,6 +5,7 @@ import dev.profunktor.valkey4cats.codec.Codec
 import dev.profunktor.valkey4cats.connection.{ValkeyClient, ValkeyClusterClient}
 import dev.profunktor.valkey4cats.effect.MkValkey
 import dev.profunktor.valkey4cats.model.{
+  ClientSideCacheConfig,
   ValkeyClientConfig,
   ValkeyClusterConfig,
   ValkeyUri
@@ -203,6 +204,103 @@ object Valkey {
     ): Resource[F, ValkeyCommands[F, K, V]] =
       MkValkey[F].txRunner.map { tx =>
         new ValkeyCluster[F, K, V](client, kCodec, vCodec, tx)
+      }
+
+    // ==================== Cached Variants ====================
+
+    /** Create a UTF-8 connection with client-side caching enabled.
+      *
+      * Returns [[CachedValkeyCommands]] which provides cache metrics at the type level.
+      *
+      * @param uri The connection URI
+      * @param cacheConfig Client-side cache configuration (required)
+      * @return Resource managing the cached Valkey connection
+      */
+    def utf8Cached(
+        uri: String,
+        cacheConfig: ClientSideCacheConfig
+    ): Resource[F, CachedValkeyCommands[F, String, String]] =
+      for {
+        config <- Resource.eval(ValkeyClientConfig.fromUri[F](uri))
+        client <- MkValkey[F].clientFromConfig(
+          config.withClientSideCache(cacheConfig)
+        )
+        tx <- MkValkey[F].txRunner
+      } yield new CachedValkeyStandalone[F, String, String](
+        client,
+        Codec.utf8Codec,
+        Codec.utf8Codec,
+        tx
+      )
+
+    /** Create a connection from configuration with client-side caching enabled.
+      *
+      * @param config The client configuration
+      * @param cacheConfig Client-side cache configuration (required)
+      * @return Resource managing the cached Valkey connection
+      */
+    def fromConfigCached[K, V](
+        config: ValkeyClientConfig,
+        cacheConfig: ClientSideCacheConfig
+    )(implicit
+        kCodec: Codec[K],
+        vCodec: Codec[V]
+    ): Resource[F, CachedValkeyCommands[F, K, V]] =
+      for {
+        client <- MkValkey[F].clientFromConfig(
+          config.withClientSideCache(cacheConfig)
+        )
+        tx <- MkValkey[F].txRunner
+      } yield new CachedValkeyStandalone[F, K, V](client, kCodec, vCodec, tx)
+
+    /** Create a cluster connection from configuration with client-side caching enabled.
+      *
+      * @param config The cluster configuration
+      * @param cacheConfig Client-side cache configuration (required)
+      * @return Resource managing the cached cluster connection
+      */
+    def fromClusterConfigCached[K, V](
+        config: ValkeyClusterConfig,
+        cacheConfig: ClientSideCacheConfig
+    )(implicit
+        kCodec: Codec[K],
+        vCodec: Codec[V]
+    ): Resource[F, CachedValkeyCommands[F, K, V]] =
+      for {
+        client <- MkValkey[F].clusterClient(
+          config.withClientSideCache(cacheConfig)
+        )
+        tx <- MkValkey[F].txRunner
+      } yield new CachedValkeyCluster[F, K, V](client, kCodec, vCodec, tx)
+
+    /** Create cached commands from an existing client known to have caching enabled.
+      *
+      * Unsafe: if the underlying client was NOT configured with client-side caching,
+      * calling metrics methods will result in a failed effect at runtime.
+      */
+    def fromClientCachedUnsafe[K, V](
+        client: ValkeyClient
+    )(implicit
+        kCodec: Codec[K],
+        vCodec: Codec[V]
+    ): Resource[F, CachedValkeyCommands[F, K, V]] =
+      MkValkey[F].txRunner.map { tx =>
+        new CachedValkeyStandalone[F, K, V](client, kCodec, vCodec, tx)
+      }
+
+    /** Create cached commands from an existing cluster client known to have caching enabled.
+      *
+      * Unsafe: if the underlying client was NOT configured with client-side caching,
+      * calling metrics methods will result in a failed effect at runtime.
+      */
+    def fromClusterClientCachedUnsafe[K, V](
+        client: ValkeyClusterClient
+    )(implicit
+        kCodec: Codec[K],
+        vCodec: Codec[V]
+    ): Resource[F, CachedValkeyCommands[F, K, V]] =
+      MkValkey[F].txRunner.map { tx =>
+        new CachedValkeyCluster[F, K, V](client, kCodec, vCodec, tx)
       }
   }
 
