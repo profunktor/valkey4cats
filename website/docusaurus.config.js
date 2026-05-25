@@ -8,8 +8,8 @@ const darkCodeTheme = themes.dracula;
 const config = {
   title: 'Valkey4Cats',
   tagline: 'Purely functional Valkey client for Scala',
-  url: 'https://profunktor.github.io',
-  baseUrl: '/valkey4cats/',
+  url: 'https://valkey.profunktor.dev',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.svg',
