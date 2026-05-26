@@ -13,7 +13,7 @@ object ValkeyPattern {
 }
 
 final case class ValkeyPatternEvent[K, V](
-    pattern: K,
-    channel: K,
+    pattern: ValkeyPattern[K],
+    channel: ValkeyChannel[K],
     message: V
 )

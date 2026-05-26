@@ -38,7 +38,7 @@ private[pubsub] object MessageDispatcher {
     patternOpt match {
       case Some(pattern) =>
         val key = ValkeyPattern(pattern)
-        val event = ValkeyPatternEvent(pattern, channel, message)
+        val event = ValkeyPatternEvent(key, ValkeyChannel(channel), message)
         state.patternSubs.get.flatMap { subs =>
           subs.get(key).traverse_(_.topic.publish1(Some(event)))
         }

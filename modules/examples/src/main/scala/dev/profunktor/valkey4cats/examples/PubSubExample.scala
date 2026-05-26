@@ -47,7 +47,7 @@ object PubSubExample extends IOApp.Simple {
 
       val patternSubscriber: Stream[IO, Unit] =
         pubsub.psubscribe(pattern)
-          .evalMap(evt => IO.println(s"[pattern] ${evt.pattern} matched ${evt.channel}: ${evt.message}"))
+          .evalMap(evt => IO.println(s"[pattern] ${evt.pattern.underlying} matched ${evt.channel.underlying}: ${evt.message}"))
           .take(3)
 
       val patternPublisher: Stream[IO, Unit] =

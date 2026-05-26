@@ -72,8 +72,8 @@ class PubSubIntegrationSuite extends ValkeyTestSuite {
 
       publisher.concurrently(Stream.eval(subscriber.flatMap { event =>
         IO {
-          assertEquals(event.pattern, "news.*")
-          assertEquals(event.channel, "news.sports")
+          assertEquals(event.pattern.underlying, "news.*")
+          assertEquals(event.channel.underlying, "news.sports")
           assertEquals(event.message, "goal scored")
         }
       })).compile.drain
@@ -94,8 +94,8 @@ class PubSubIntegrationSuite extends ValkeyTestSuite {
       publisher.concurrently(Stream.eval(subscriber.flatMap { events =>
         IO {
           assertEquals(events.size, 2)
-          assert(events.exists(e => e.channel == "events.click" && e.message == "clicked"))
-          assert(events.exists(e => e.channel == "events.scroll" && e.message == "scrolled"))
+          assert(events.exists(e => e.channel.underlying == "events.click" && e.message == "clicked"))
+          assert(events.exists(e => e.channel.underlying == "events.scroll" && e.message == "scrolled"))
         }
       })).compile.drain
     }
