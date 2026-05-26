@@ -6,6 +6,7 @@ object Dependencies {
     val valkeyGlide = "2.4.0"
     val catsCore = "2.13.0"
     val catsEffect = "3.7.0"
+    val fs2 = "3.11.0"
     val literally = "1.2.0"
     val ip4s = "3.8.0"
     val log4cats = "2.8.0"
@@ -22,6 +23,7 @@ object Dependencies {
 
   val catsCore = "org.typelevel" %% "cats-core" % Versions.catsCore
   val catsEffect = "org.typelevel" %% "cats-effect" % Versions.catsEffect
+  val fs2Core = "co.fs2" %% "fs2-core" % Versions.fs2
   val literally = "org.typelevel" %% "literally" % Versions.literally
   val ip4s = "com.comcast" %% "ip4s-core" % Versions.ip4s
 
@@ -52,7 +54,8 @@ object Dependencies {
     )
 
     val effects = Seq(
-      catsEffect
+      catsEffect,
+      fs2Core
     )
 
     val log4cats = Seq(
