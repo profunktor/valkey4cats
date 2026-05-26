@@ -1,6 +1,10 @@
 package dev.profunktor.valkey4cats.model
 
+import cats.effect.Sync
 import glide.api.models.configuration as G
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
 
 /** TLS encryption mode for Valkey connection
   */
@@ -64,9 +68,17 @@ object TlsAdvancedConfig {
     builder.build()
   }
 
-  /** Create config with custom root certificates */
+  /** Create config with custom root certificates (PEM bytes) */
   def withRootCertificates(certs: Array[Byte]): TlsAdvancedConfig =
     TlsAdvancedConfig(rootCertificates = Some(certs))
+
+  /** Create config with root certificates from a PEM-encoded string */
+  def fromCertString(pem: String): TlsAdvancedConfig =
+    withRootCertificates(pem.getBytes(StandardCharsets.UTF_8))
+
+  /** Load root certificates from a PEM file on disk */
+  def fromCertFile[F[_]: Sync](path: Path): F[TlsAdvancedConfig] =
+    Sync[F].blocking(withRootCertificates(Files.readAllBytes(path)))
 
   /** Create config for insecure TLS (skip certificate validation - testing only!) */
   def insecure: TlsAdvancedConfig =
