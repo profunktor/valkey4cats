@@ -3,7 +3,7 @@ import sbt.*
 object Dependencies {
   // Versions
   object Versions {
-    val valkeyGlide = "2.4.0"
+    val valkeyGlide = "2.4.1"
     val catsCore = "2.13.0"
     val catsEffect = "3.7.0"
     val literally = "1.2.0"
