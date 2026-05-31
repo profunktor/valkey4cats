@@ -11,7 +11,7 @@ object Dependencies {
     val log4cats = "2.8.0"
 
     // Test dependencies
-    val munit = "1.3.0"
+    val munit = "1.3.1"
     val munitCatsEffect = "2.2.0"
     val testcontainers = "2.0.5"
   }
