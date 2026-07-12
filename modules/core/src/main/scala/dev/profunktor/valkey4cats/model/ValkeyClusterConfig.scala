@@ -242,7 +242,7 @@ object ValkeyClusterConfig {
   private def validateConsistentUris(
       uris: List[ValkeyUri]
   ): Either[String, ValkeyUri] = uris match {
-    case Nil => Left("No URIs provided")
+    case Nil           => Left("No URIs provided")
     case first :: rest =>
       rest.find(!first.isConsistentWith(_)) match {
         case Some(uri) =>
