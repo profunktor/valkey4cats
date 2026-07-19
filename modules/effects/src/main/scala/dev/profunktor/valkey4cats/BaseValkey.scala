@@ -3587,10 +3587,13 @@ private[valkey4cats] abstract class BaseValkey[F[_]: MkValkey, K, V](
 
 }
 
-private[valkey4cats] trait CacheMetricsImpl[F[_], K, V] extends CachedValkeyCommands[F, K, V] {
+private[valkey4cats] trait CacheMetricsImpl[F[_], K, V]
+    extends CachedValkeyCommands[F, K, V] {
   self: BaseValkey[F, K, V] =>
 
-  private def liftAndMap[A, B](cf: java.util.concurrent.CompletableFuture[A])(f: A => B): F[B] =
+  private def liftAndMap[A, B](cf: java.util.concurrent.CompletableFuture[A])(
+      f: A => B
+  ): F[B] =
     asyncF.map(futureLift.lift(cf))(f)
 
   override def cacheHitRate: F[Double] =

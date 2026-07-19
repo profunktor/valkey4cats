@@ -51,7 +51,8 @@ object ClientSideCacheConfig {
       enableMetrics: Boolean = false
   ): Either[String, ClientSideCacheConfig] =
     if (maxCacheKb <= 0) Left("maxCacheKb must be positive")
-    else if (entryTtl.toMillis <= 0) Left("entryTtl must be at least 1 millisecond")
+    else if (entryTtl.toMillis <= 0)
+      Left("entryTtl must be at least 1 millisecond")
     else Right(Impl(maxCacheKb, entryTtl, evictionPolicy, enableMetrics))
 
   def make[F[_]: ApplicativeThrow](
@@ -61,7 +62,8 @@ object ClientSideCacheConfig {
       enableMetrics: Boolean = false
   ): F[ClientSideCacheConfig] =
     ApplicativeThrow[F].fromEither(
-      apply(maxCacheKb, entryTtl, evictionPolicy, enableMetrics)
-        .left.map(msg => new IllegalArgumentException(msg))
+      apply(maxCacheKb, entryTtl, evictionPolicy, enableMetrics).left.map(msg =>
+        new IllegalArgumentException(msg)
+      )
     )
 }

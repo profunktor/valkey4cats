@@ -8,9 +8,11 @@ sealed trait CacheEvictionPolicy {
 
 object CacheEvictionPolicy {
   case object LRU extends CacheEvictionPolicy {
-    private[valkey4cats] def toGlide: GlideEvictionPolicy = GlideEvictionPolicy.LRU
+    private[valkey4cats] def toGlide: GlideEvictionPolicy =
+      GlideEvictionPolicy.LRU
   }
   case object LFU extends CacheEvictionPolicy {
-    private[valkey4cats] def toGlide: GlideEvictionPolicy = GlideEvictionPolicy.LFU
+    private[valkey4cats] def toGlide: GlideEvictionPolicy =
+      GlideEvictionPolicy.LFU
   }
 }
