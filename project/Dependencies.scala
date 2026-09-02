@@ -5,7 +5,7 @@ object Dependencies {
   object Versions {
     val valkeyGlide = "2.4.0"
     val catsCore = "2.13.0"
-    val catsEffect = "3.7.0"
+    val catsEffect = "3.7.1"
     val literally = "1.2.0"
     val ip4s = "3.8.0"
     val log4cats = "2.8.0"
