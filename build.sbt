@@ -4,7 +4,7 @@ import com.scalapenos.sbt.prompt.*
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // Scala version
-val Scala3 = "3.8.3"
+val Scala3 = "3.8.4"
 ThisBuild / scalaVersion := Scala3
 ThisBuild / mimaBaseVersion := "0.1.0"
 ThisBuild / organization := "dev.profunktor"
@@ -65,7 +65,7 @@ lazy val root = project
     name := "valkey4cats",
     publish / skip := true
   )
-.aggregate(core, effects, log4Cats, examples)
+  .aggregate(core, effects, log4Cats, examples)
 
 lazy val core = project
   .in(file("modules/core"))
