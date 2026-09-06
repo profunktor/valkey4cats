@@ -65,7 +65,7 @@ lazy val root = project
     name := "valkey4cats",
     publish / skip := true
   )
-.aggregate(core, effects, log4Cats, examples)
+  .aggregate(core, effects, log4Cats, examples)
 
 lazy val core = project
   .in(file("modules/core"))
