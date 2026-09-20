@@ -12,7 +12,7 @@ object Dependencies {
 
     // Test dependencies
     val munit = "1.3.5"
-    val munitCatsEffect = "2.2.0"
+    val munitCatsEffect = "2.2.1"
     val testcontainers = "2.0.5"
   }
 
